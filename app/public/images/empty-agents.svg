@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" fill="none">
+  <defs>
+    <linearGradient id="ea-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E5CC"/>
+      <stop offset="100%" stop-color="#FF9B26"/>
+    </linearGradient>
+    <radialGradient id="ea-bg" cx="50%" cy="45%" r="45%">
+      <stop offset="0%" stop-color="#00E5CC" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#00E5CC" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="ea-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <style>
+      @keyframes eaFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+      @keyframes eaPulse { 0%,100%{ opacity:0.3; } 50%{ opacity:0.7; } }
+      @keyframes eaDash { to { stroke-dashoffset: -20; } }
+      .ea-float { animation: eaFloat 5s ease-in-out infinite; }
+      .ea-pulse { animation: eaPulse 3s ease-in-out infinite; }
+      .ea-dash { stroke-dasharray: 4 6; animation: eaDash 2s linear infinite; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <circle cx="150" cy="110" r="100" fill="url(#ea-bg)"/>
+
+  <!-- Large shield outline (empty / waiting) -->
+  <g class="ea-float" filter="url(#ea-glow)">
+    <path d="M150 40 L205 65 L205 115 C205 155 180 180 150 195 C120 180 95 155 95 115 L95 65 Z"
+          fill="rgba(17,19,39,0.5)" stroke="url(#ea-grad)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="8 4" opacity="0.5"/>
+
+    <!-- Question mark inside shield -->
+    <path d="M140 95 C140 85 145 80 150 80 C155 80 162 83 162 92 C162 100 153 100 153 108"
+          fill="none" stroke="#00E5CC" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+    <circle cx="153" cy="118" r="2.5" fill="#00E5CC" opacity="0.5"/>
+  </g>
+
+  <!-- Dashed orbit ring - waiting for agents -->
+  <ellipse cx="150" cy="115" rx="120" ry="50" stroke="#1E2140" stroke-width="1" fill="none" stroke-dasharray="6 8" opacity="0.4"/>
+
+  <!-- Ghost agent nodes on orbit (dimmed) -->
+  <circle cx="38" cy="105" r="12" fill="rgba(17,19,39,0.5)" stroke="#1E2140" stroke-width="1" class="ea-pulse"/>
+  <circle cx="262" cy="105" r="12" fill="rgba(17,19,39,0.5)" stroke="#1E2140" stroke-width="1" class="ea-pulse" style="animation-delay: 1s"/>
+  <circle cx="80" cy="148" r="10" fill="rgba(17,19,39,0.5)" stroke="#1E2140" stroke-width="1" class="ea-pulse" style="animation-delay: 0.5s"/>
+  <circle cx="220" cy="148" r="10" fill="rgba(17,19,39,0.5)" stroke="#1E2140" stroke-width="1" class="ea-pulse" style="animation-delay: 1.5s"/>
+
+  <!-- Plus icons in ghost nodes -->
+  <line x1="34" y1="105" x2="42" y2="105" stroke="#1E2140" stroke-width="1.5" opacity="0.5"/>
+  <line x1="38" y1="101" x2="38" y2="109" stroke="#1E2140" stroke-width="1.5" opacity="0.5"/>
+  <line x1="258" y1="105" x2="266" y2="105" stroke="#1E2140" stroke-width="1.5" opacity="0.5"/>
+  <line x1="262" y1="101" x2="262" y2="109" stroke="#1E2140" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- Dashed connection lines to shield -->
+  <line class="ea-dash" x1="50" y1="105" x2="98" y2="95" stroke="#1E2140" stroke-width="0.8" opacity="0.3"/>
+  <line class="ea-dash" x1="250" y1="105" x2="202" y2="95" stroke="#1E2140" stroke-width="0.8" opacity="0.3"/>
+</svg>

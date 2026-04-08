@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" fill="none">
+  <defs>
+    <!-- Glow filters -->
+    <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-orange" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="grad-main" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E5CC" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#FF9B26" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="grad-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00E5CC" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FF9B26" stop-opacity="0.6"/>
+    </linearGradient>
+    <linearGradient id="grad-line2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6C5CE7" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#00E5CC" stop-opacity="0.5"/>
+    </linearGradient>
+    <radialGradient id="grad-center" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00E5CC" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#00E5CC" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-glow-cyan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00E5CC" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00E5CC" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-glow-orange" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9B26" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#FF9B26" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node-glow-purple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6C5CE7" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#6C5CE7" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Animated dashes -->
+    <style>
+      @keyframes dash { to { stroke-dashoffset: -40; } }
+      @keyframes pulse1 { 0%,100%{ opacity:0.5; r:4 } 50%{ opacity:1; r:6 } }
+      @keyframes pulse2 { 0%,100%{ opacity:0.4; r:3 } 50%{ opacity:0.9; r:5 } }
+      @keyframes orbit1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      @keyframes orbit2 { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+      @keyframes floatNode { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
+      .dash-line { stroke-dasharray: 8 12; animation: dash 2s linear infinite; }
+      .dash-line-slow { stroke-dasharray: 6 14; animation: dash 3s linear infinite; }
+      .pulse-node { animation: pulse1 3s ease-in-out infinite; }
+      .pulse-node-delay { animation: pulse2 3.5s ease-in-out infinite 0.5s; }
+      .orbit-ring { transform-origin: 300px 250px; animation: orbit1 20s linear infinite; }
+      .orbit-ring-rev { transform-origin: 300px 250px; animation: orbit2 25s linear infinite; }
+      .float-1 { animation: floatNode 4s ease-in-out infinite; }
+      .float-2 { animation: floatNode 5s ease-in-out infinite 1s; }
+      .float-3 { animation: floatNode 4.5s ease-in-out infinite 0.5s; }
+    </style>
+  </defs>
+
+  <!-- Background glow -->
+  <circle cx="300" cy="250" r="220" fill="url(#grad-center)"/>
+
+  <!-- Orbit rings -->
+  <circle class="orbit-ring" cx="300" cy="250" r="160" stroke="#1E2140" stroke-width="1" fill="none" opacity="0.5"/>
+  <circle class="orbit-ring-rev" cx="300" cy="250" r="110" stroke="#1E2140" stroke-width="1" fill="none" opacity="0.4"/>
+  <circle cx="300" cy="250" r="60" stroke="url(#grad-main)" stroke-width="1.5" fill="none" opacity="0.3"/>
+
+  <!-- Connection lines from center to agent nodes -->
+  <line class="dash-line" x1="300" y1="250" x2="90" y2="120" stroke="url(#grad-line)" stroke-width="1.5"/>
+  <line class="dash-line" x1="300" y1="250" x2="80" y2="280" stroke="url(#grad-line)" stroke-width="1.5"/>
+  <line class="dash-line" x1="300" y1="250" x2="120" y2="420" stroke="url(#grad-line)" stroke-width="1.5"/>
+
+  <!-- Connection lines from center to DAO nodes -->
+  <line class="dash-line-slow" x1="300" y1="250" x2="510" y2="100" stroke="url(#grad-line2)" stroke-width="1.5"/>
+  <line class="dash-line-slow" x1="300" y1="250" x2="530" y2="270" stroke="url(#grad-line2)" stroke-width="1.5"/>
+  <line class="dash-line-slow" x1="300" y1="250" x2="500" y2="410" stroke="url(#grad-line2)" stroke-width="1.5"/>
+
+  <!-- Cross connections (agents to agents, DAO to DAO) -->
+  <line class="dash-line" x1="90" y1="120" x2="80" y2="280" stroke="#00E5CC" stroke-width="0.8" opacity="0.2"/>
+  <line class="dash-line" x1="80" y1="280" x2="120" y2="420" stroke="#00E5CC" stroke-width="0.8" opacity="0.2"/>
+  <line class="dash-line-slow" x1="510" y1="100" x2="530" y2="270" stroke="#6C5CE7" stroke-width="0.8" opacity="0.2"/>
+  <line class="dash-line-slow" x1="530" y1="270" x2="500" y2="410" stroke="#6C5CE7" stroke-width="0.8" opacity="0.2"/>
+
+  <!-- Extra subtle connection lines for density -->
+  <line class="dash-line" x1="90" y1="120" x2="510" y2="100" stroke="#1E2140" stroke-width="0.8" opacity="0.3"/>
+  <line class="dash-line-slow" x1="120" y1="420" x2="500" y2="410" stroke="#1E2140" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- CENTER SHIELD NODE -->
+  <g filter="url(#glow-cyan)">
+    <circle cx="300" cy="250" r="36" fill="#111327" stroke="url(#grad-main)" stroke-width="2"/>
+    <!-- Shield icon -->
+    <path d="M300 228 L316 236 L316 250 C316 260 308 268 300 272 C292 268 284 260 284 250 L284 236 Z"
+          fill="none" stroke="url(#grad-main)" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Keyhole in shield -->
+    <circle cx="300" cy="247" r="3" fill="#00E5CC"/>
+    <rect x="298.5" y="249" width="3" height="6" rx="1.5" fill="#00E5CC"/>
+  </g>
+
+  <!-- AGENT NODES (left side - cyan) -->
+  <g class="float-1">
+    <circle cx="90" cy="120" r="40" fill="url(#node-glow-cyan)"/>
+    <circle cx="90" cy="120" r="22" fill="#111327" stroke="#00E5CC" stroke-width="1.5"/>
+    <!-- Chip/CPU icon -->
+    <rect x="80" y="110" width="20" height="20" rx="3" fill="none" stroke="#00E5CC" stroke-width="1.5"/>
+    <line x1="85" y1="110" x2="85" y2="106" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="90" y1="110" x2="90" y2="106" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="95" y1="110" x2="95" y2="106" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="85" y1="130" x2="85" y2="134" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="90" y1="130" x2="90" y2="134" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="95" y1="130" x2="95" y2="134" stroke="#00E5CC" stroke-width="1"/>
+    <circle class="pulse-node" cx="90" cy="120" r="4" fill="#00E5CC" opacity="0.6"/>
+  </g>
+
+  <g class="float-2">
+    <circle cx="80" cy="280" r="40" fill="url(#node-glow-cyan)"/>
+    <circle cx="80" cy="280" r="22" fill="#111327" stroke="#00E5CC" stroke-width="1.5"/>
+    <rect x="70" y="270" width="20" height="20" rx="3" fill="none" stroke="#00E5CC" stroke-width="1.5"/>
+    <line x1="75" y1="270" x2="75" y2="266" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="80" y1="270" x2="80" y2="266" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="85" y1="270" x2="85" y2="266" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="75" y1="290" x2="75" y2="294" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="80" y1="290" x2="80" y2="294" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="85" y1="290" x2="85" y2="294" stroke="#00E5CC" stroke-width="1"/>
+    <circle class="pulse-node-delay" cx="80" cy="280" r="3" fill="#00E5CC" opacity="0.5"/>
+  </g>
+
+  <g class="float-3">
+    <circle cx="120" cy="420" r="40" fill="url(#node-glow-cyan)"/>
+    <circle cx="120" cy="420" r="22" fill="#111327" stroke="#00E5CC" stroke-width="1.5"/>
+    <rect x="110" y="410" width="20" height="20" rx="3" fill="none" stroke="#00E5CC" stroke-width="1.5"/>
+    <line x1="115" y1="410" x2="115" y2="406" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="120" y1="410" x2="120" y2="406" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="125" y1="410" x2="125" y2="406" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="115" y1="430" x2="115" y2="434" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="120" y1="430" x2="120" y2="434" stroke="#00E5CC" stroke-width="1"/>
+    <line x1="125" y1="430" x2="125" y2="434" stroke="#00E5CC" stroke-width="1"/>
+    <!-- Alert indicator - this agent has a violation -->
+    <circle cx="135" cy="407" r="6" fill="#EE4F27" opacity="0.8"/>
+    <text x="135" y="410" text-anchor="middle" fill="white" font-size="8" font-weight="bold">!</text>
+  </g>
+
+  <!-- DAO NODES (right side - purple/orange) -->
+  <g class="float-2">
+    <circle cx="510" cy="100" r="40" fill="url(#node-glow-purple)"/>
+    <circle cx="510" cy="100" r="22" fill="#111327" stroke="#6C5CE7" stroke-width="1.5"/>
+    <!-- Person icon -->
+    <circle cx="510" cy="93" r="5" fill="none" stroke="#6C5CE7" stroke-width="1.5"/>
+    <path d="M500 112 C500 105 505 100 510 100 C515 100 520 105 520 112" fill="none" stroke="#6C5CE7" stroke-width="1.5"/>
+    <circle class="pulse-node" cx="510" cy="100" r="4" fill="#6C5CE7" opacity="0.5"/>
+  </g>
+
+  <g class="float-1">
+    <circle cx="530" cy="270" r="40" fill="url(#node-glow-orange)"/>
+    <circle cx="530" cy="270" r="22" fill="#111327" stroke="#FF9B26" stroke-width="1.5"/>
+    <circle cx="530" cy="263" r="5" fill="none" stroke="#FF9B26" stroke-width="1.5"/>
+    <path d="M520 282 C520 275 525 270 530 270 C535 270 540 275 540 282" fill="none" stroke="#FF9B26" stroke-width="1.5"/>
+    <circle class="pulse-node-delay" cx="530" cy="270" r="3" fill="#FF9B26" opacity="0.5"/>
+  </g>
+
+  <g class="float-3">
+    <circle cx="500" cy="410" r="40" fill="url(#node-glow-purple)"/>
+    <circle cx="500" cy="410" r="22" fill="#111327" stroke="#6C5CE7" stroke-width="1.5"/>
+    <circle cx="500" cy="403" r="5" fill="none" stroke="#6C5CE7" stroke-width="1.5"/>
+    <path d="M490 422 C490 415 495 410 500 410 C505 410 510 415 510 422" fill="none" stroke="#6C5CE7" stroke-width="1.5"/>
+    <circle class="pulse-node" cx="500" cy="410" r="4" fill="#6C5CE7" opacity="0.5"/>
+  </g>
+
+  <!-- Labels -->
+  <text x="55" y="60" fill="#00E5CC" font-family="system-ui, sans-serif" font-size="11" font-weight="600" opacity="0.7">AI AGENTS</text>
+  <text x="475" y="55" fill="#6C5CE7" font-family="system-ui, sans-serif" font-size="11" font-weight="600" opacity="0.7">DAO JURY</text>
+  <text x="262" y="310" fill="#E8E8ED" font-family="system-ui, sans-serif" font-size="10" font-weight="500" opacity="0.5">WARDEN</text>
+
+  <!-- Orbiting dots on rings -->
+  <g class="orbit-ring">
+    <circle cx="460" cy="250" r="3" fill="#00E5CC" opacity="0.7"/>
+    <circle cx="140" cy="250" r="2.5" fill="#FF9B26" opacity="0.6"/>
+  </g>
+  <g class="orbit-ring-rev">
+    <circle cx="410" cy="250" r="2" fill="#6C5CE7" opacity="0.6"/>
+    <circle cx="190" cy="250" r="2.5" fill="#00E5CC" opacity="0.5"/>
+  </g>
+</svg>

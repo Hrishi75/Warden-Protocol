@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <linearGradient id="cs-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E5CC"/>
+      <stop offset="100%" stop-color="#FF9B26"/>
+    </linearGradient>
+    <linearGradient id="cs-grad2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6C5CE7"/>
+      <stop offset="100%" stop-color="#00E5CC"/>
+    </linearGradient>
+    <radialGradient id="cs-glow" cx="50%" cy="45%" r="40%">
+      <stop offset="0%" stop-color="#00E5CC" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#00E5CC" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="cs-blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <style>
+      @keyframes csOrbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      @keyframes csOrbitRev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+      @keyframes csPulse { 0%,100%{ opacity:0.4; } 50%{ opacity:0.8; } }
+      @keyframes csFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+      .cs-orbit1 { transform-origin: 200px 180px; animation: csOrbit 15s linear infinite; }
+      .cs-orbit2 { transform-origin: 200px 180px; animation: csOrbitRev 20s linear infinite; }
+      .cs-pulse { animation: csPulse 3s ease-in-out infinite; }
+      .cs-float { animation: csFloat 5s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <!-- Background glow -->
+  <circle cx="200" cy="180" r="160" fill="url(#cs-glow)"/>
+
+  <!-- Outer orbit ring -->
+  <circle cx="200" cy="180" r="150" stroke="#1E2140" stroke-width="1" fill="none" opacity="0.5"/>
+  <circle cx="200" cy="180" r="120" stroke="#1E2140" stroke-width="1" fill="none" opacity="0.3"/>
+  <circle cx="200" cy="180" r="90" stroke="url(#cs-grad)" stroke-width="1" fill="none" opacity="0.15"/>
+
+  <!-- Orbiting particles -->
+  <g class="cs-orbit1">
+    <circle cx="350" cy="180" r="4" fill="#00E5CC" opacity="0.6"/>
+    <circle cx="50" cy="180" r="3" fill="#FF9B26" opacity="0.5"/>
+  </g>
+  <g class="cs-orbit2">
+    <circle cx="320" cy="180" r="3" fill="#6C5CE7" opacity="0.5"/>
+    <circle cx="80" cy="180" r="3.5" fill="#00E5CC" opacity="0.4"/>
+  </g>
+
+  <!-- Large center shield -->
+  <g class="cs-float">
+    <!-- Shield glow behind -->
+    <path d="M200 80 L265 115 L265 185 C265 235 235 270 200 290 C165 270 135 235 135 185 L135 115 Z"
+          fill="#00E5CC" opacity="0.05" filter="url(#cs-blur)"/>
+
+    <!-- Shield body -->
+    <path d="M200 90 L258 120 L258 183 C258 228 232 260 200 278 C168 260 142 228 142 183 L142 120 Z"
+          fill="rgba(17,19,39,0.85)" stroke="url(#cs-grad)" stroke-width="2.5" stroke-linejoin="round"/>
+
+    <!-- Inner shield detail lines -->
+    <path d="M200 105 L245 128 L245 183 C245 220 225 248 200 262 C175 248 155 220 155 183 L155 128 Z"
+          fill="none" stroke="url(#cs-grad)" stroke-width="0.8" stroke-linejoin="round" opacity="0.3"/>
+
+    <!-- Circuit branches on shield -->
+    <!-- Left branches -->
+    <line x1="170" y1="145" x2="155" y2="145" stroke="#00E5CC" stroke-width="1.2" opacity="0.5"/>
+    <line x1="155" y1="145" x2="155" y2="165" stroke="#00E5CC" stroke-width="1.2" opacity="0.5"/>
+    <circle cx="155" cy="165" r="2" fill="#00E5CC" opacity="0.5"/>
+    <line x1="170" y1="175" x2="160" y2="175" stroke="#00E5CC" stroke-width="1.2" opacity="0.4"/>
+    <line x1="160" y1="175" x2="160" y2="195" stroke="#00E5CC" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="160" cy="195" r="2" fill="#00E5CC" opacity="0.4"/>
+
+    <!-- Right branches -->
+    <line x1="230" y1="145" x2="245" y2="145" stroke="#FF9B26" stroke-width="1.2" opacity="0.5"/>
+    <line x1="245" y1="145" x2="245" y2="165" stroke="#FF9B26" stroke-width="1.2" opacity="0.5"/>
+    <circle cx="245" cy="165" r="2" fill="#FF9B26" opacity="0.5"/>
+    <line x1="230" y1="175" x2="240" y2="175" stroke="#FF9B26" stroke-width="1.2" opacity="0.4"/>
+    <line x1="240" y1="175" x2="240" y2="195" stroke="#FF9B26" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="240" cy="195" r="2" fill="#FF9B26" opacity="0.4"/>
+
+    <!-- Keyhole -->
+    <circle cx="200" cy="168" r="12" fill="none" stroke="url(#cs-grad)" stroke-width="2"/>
+    <circle cx="200" cy="165" r="5" fill="#00E5CC" opacity="0.8"/>
+    <rect x="197" y="170" width="6" height="18" rx="3" fill="url(#cs-grad)" opacity="0.8"/>
+
+    <!-- Top circuit node -->
+    <line x1="200" y1="105" x2="200" y2="90" stroke="url(#cs-grad)" stroke-width="1.5" opacity="0.5"/>
+    <circle cx="200" cy="88" r="3" fill="#00E5CC" opacity="0.6" class="cs-pulse"/>
+  </g>
+
+  <!-- Data streams radiating out (subtle) -->
+  <line x1="145" y1="140" x2="80" y2="100" stroke="#00E5CC" stroke-width="0.8" stroke-dasharray="4 6" opacity="0.2"/>
+  <line x1="255" y1="140" x2="320" y2="100" stroke="#FF9B26" stroke-width="0.8" stroke-dasharray="4 6" opacity="0.2"/>
+  <line x1="145" y1="210" x2="70" y2="260" stroke="#6C5CE7" stroke-width="0.8" stroke-dasharray="4 6" opacity="0.2"/>
+  <line x1="255" y1="210" x2="330" y2="260" stroke="#00E5CC" stroke-width="0.8" stroke-dasharray="4 6" opacity="0.2"/>
+
+  <!-- Small endpoint nodes -->
+  <circle cx="80" cy="100" r="3" fill="#00E5CC" opacity="0.3" class="cs-pulse"/>
+  <circle cx="320" cy="100" r="3" fill="#FF9B26" opacity="0.3" class="cs-pulse"/>
+  <circle cx="70" cy="260" r="3" fill="#6C5CE7" opacity="0.3" class="cs-pulse"/>
+  <circle cx="330" cy="260" r="3" fill="#00E5CC" opacity="0.3" class="cs-pulse"/>
+
+  <!-- Bottom text -->
+  <text x="200" y="340" text-anchor="middle" fill="#E8E8ED" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="4" opacity="0.3">WARDEN PROTOCOL</text>
+  <line x1="100" y1="355" x2="300" y2="355" stroke="url(#cs-grad)" stroke-width="1" opacity="0.15"/>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 200" fill="none">
+  <defs>
+    <linearGradient id="fe-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6C5CE7"/>
+      <stop offset="100%" stop-color="#00E5CC"/>
+    </linearGradient>
+    <filter id="fe-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <radialGradient id="fe-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6C5CE7" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#6C5CE7" stop-opacity="0"/>
+    </radialGradient>
+    <style>
+      @keyframes scanPulse { 0%{ transform: translateY(-30px); opacity:0; } 50%{ opacity:0.6; } 100%{ transform: translateY(30px); opacity:0; } }
+      @keyframes lockPulse { 0%,100%{ filter: drop-shadow(0 0 4px rgba(108,92,231,0.3)); } 50%{ filter: drop-shadow(0 0 12px rgba(108,92,231,0.7)); } }
+      @keyframes alertBlink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+      .scan-line { animation: scanPulse 2.5s ease-in-out infinite; }
+      .lock-glow { animation: lockPulse 3s ease-in-out infinite; }
+      .alert-blink { animation: alertBlink 1.5s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <circle cx="140" cy="95" r="85" fill="url(#fe-bg)"/>
+
+  <!-- Monitor/Eye frame -->
+  <g filter="url(#fe-glow)" class="lock-glow">
+    <rect x="75" y="45" width="130" height="90" rx="12" fill="rgba(17,19,39,0.8)" stroke="url(#fe-grad)" stroke-width="1.5"/>
+    <!-- Screen content - monitoring grid -->
+    <line x1="95" y1="65" x2="185" y2="65" stroke="#1E2140" stroke-width="1"/>
+    <line x1="95" y1="80" x2="185" y2="80" stroke="#1E2140" stroke-width="1"/>
+    <line x1="95" y1="95" x2="185" y2="95" stroke="#1E2140" stroke-width="1"/>
+    <line x1="95" y1="110" x2="185" y2="110" stroke="#1E2140" stroke-width="1"/>
+    <line x1="120" y1="55" x2="120" y2="125" stroke="#1E2140" stroke-width="1"/>
+    <line x1="155" y1="55" x2="155" y2="125" stroke="#1E2140" stroke-width="1"/>
+
+    <!-- OK indicators -->
+    <circle cx="107" cy="72" r="3" fill="#00E5CC" opacity="0.8"/>
+    <circle cx="137" cy="72" r="3" fill="#00E5CC" opacity="0.8"/>
+    <circle cx="170" cy="72" r="3" fill="#00E5CC" opacity="0.8"/>
+    <circle cx="107" cy="87" r="3" fill="#00E5CC" opacity="0.8"/>
+    <circle cx="137" cy="87" r="3" fill="#00E5CC" opacity="0.8"/>
+
+    <!-- Violation detected -->
+    <circle cx="170" cy="87" r="3" fill="#EE4F27" class="alert-blink"/>
+    <circle cx="107" cy="102" r="3" fill="#00E5CC" opacity="0.8"/>
+    <circle cx="137" cy="102" r="3" fill="#00E5CC" opacity="0.7"/>
+    <circle cx="170" cy="102" r="3" fill="#00E5CC" opacity="0.8"/>
+  </g>
+
+  <!-- Scan line sweeping -->
+  <rect class="scan-line" x="85" y="85" width="110" height="2" rx="1" fill="#6C5CE7" opacity="0.4"/>
+
+  <!-- Lock icon below -->
+  <g transform="translate(140,155)">
+    <rect x="-16" y="-4" width="32" height="24" rx="4" fill="#111327" stroke="#6C5CE7" stroke-width="1.5"/>
+    <path d="M-8 -4 L-8 -12 C-8 -18 -3 -22 0 -22 C3 -22 8 -18 8 -12 L8 -4" fill="none" stroke="#6C5CE7" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="0" cy="7" r="3" fill="#6C5CE7"/>
+    <rect x="-1" y="9" width="2" height="5" rx="1" fill="#6C5CE7"/>
+  </g>
+
+  <!-- Alert badge -->
+  <g class="alert-blink">
+    <circle cx="200" cy="50" r="10" fill="rgba(238,79,39,0.2)" stroke="#EE4F27" stroke-width="1"/>
+    <text x="200" y="54" text-anchor="middle" fill="#EE4F27" font-family="system-ui" font-size="12" font-weight="bold">!</text>
+  </g>
+
+  <!-- Status label -->
+  <rect x="80" y="178" width="120" height="18" rx="9" fill="rgba(238,79,39,0.1)" stroke="rgba(238,79,39,0.3)" stroke-width="1"/>
+  <text x="140" y="191" text-anchor="middle" fill="#EE4F27" font-family="monospace" font-size="9" font-weight="600">VIOLATION DETECTED</text>
+</svg>
