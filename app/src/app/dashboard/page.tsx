@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AgentCard } from "@/components/AgentCard";
 import { useProgram } from "@/lib/useProgram";
 import { fetchAllAgents, getStatusString } from "@/lib/program";
@@ -9,6 +9,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { HUDFrame } from "@/components/HUDFrame";
 import { OperativeCard } from "@/components/OperativeCard";
 import { RadarScan } from "@/components/RadarScan";
+import { useWallet } from "@solana/wallet-adapter-react";
 import Link from "next/link";
 
 const stagger = {
@@ -20,6 +21,167 @@ const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
+
+function WithdrawalSection() {
+  const { publicKey } = useWallet();
+  const [showModal, setShowModal] = useState(false);
+  const [amount, setAmount] = useState("10");
+  const [currency, setCurrency] = useState<"USD" | "INR">("USD");
+  const [payoutStatus, setPayoutStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [payoutMsg, setPayoutMsg] = useState("");
+
+  const handlePayout = async () => {
+    if (!publicKey) return;
+    setPayoutStatus("loading");
+
+    try {
+      const res = await fetch("/api/payments/payout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ownerPublicKey: publicKey.toBase58(),
+          amount: parseFloat(amount),
+          currency,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Payout failed");
+      }
+
+      const data = await res.json();
+      setPayoutStatus("success");
+      setPayoutMsg(`Payout ${data.payoutId} submitted`);
+    } catch (err: unknown) {
+      setPayoutStatus("error");
+      setPayoutMsg(err instanceof Error ? err.message : "Payout request failed");
+    }
+  };
+
+  return (
+    <>
+      <HUDFrame color="orange" label="TREASURY & WITHDRAWALS" className="mb-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-mono text-xs text-gray-500 tracking-wider mb-1">FIAT OFF-RAMP</p>
+            <p className="font-mono text-sm text-gray-400">
+              Withdraw staking yield and slash rewards to fiat (INR/USD) via Dodo Payments.
+            </p>
+            <p className="font-mono text-[10px] text-warden-orange/60 mt-1">TEST MODE ACTIVE</p>
+          </div>
+          <motion.button
+            onClick={() => { setShowModal(true); setPayoutStatus("idle"); setPayoutMsg(""); }}
+            className="btn-hud !border-warden-orange/30 !text-warden-orange hover:!bg-warden-orange/10 !py-2 !px-4 text-xs shrink-0"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            WITHDRAW TO FIAT
+          </motion.button>
+        </div>
+      </HUDFrame>
+
+      {/* Withdrawal Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+              onClick={() => setShowModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+            >
+              <HUDFrame color="orange" label="PAYOUT REQUEST" className="!p-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block font-mono text-xs text-gray-500 tracking-widest mb-2 uppercase">
+                      Amount
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      disabled={payoutStatus === "loading"}
+                      className="cyber-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-xs text-gray-500 tracking-widest mb-2 uppercase">
+                      Currency
+                    </label>
+                    <div className="flex gap-2">
+                      {(["USD", "INR"] as const).map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => setCurrency(c)}
+                          className={`flex-1 py-2 font-mono text-xs tracking-wider border transition-all ${
+                            currency === c
+                              ? "border-warden-orange text-warden-orange bg-warden-orange/10"
+                              : "border-gray-700 text-gray-500 hover:border-gray-600"
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {payoutStatus === "success" && (
+                    <HUDFrame color="green" className="!p-3">
+                      <p className="font-mono text-xs text-hud-green">{payoutMsg}</p>
+                    </HUDFrame>
+                  )}
+
+                  {payoutStatus === "error" && (
+                    <HUDFrame color="red" className="!p-3">
+                      <p className="font-mono text-xs text-alert-red">{payoutMsg}</p>
+                    </HUDFrame>
+                  )}
+
+                  <div className="flex gap-3">
+                    <motion.button
+                      onClick={() => setShowModal(false)}
+                      className="flex-1 py-3 font-mono text-xs tracking-wider border border-gray-700 text-gray-500 hover:text-gray-400 transition-all"
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      CANCEL
+                    </motion.button>
+                    <motion.button
+                      onClick={handlePayout}
+                      disabled={payoutStatus === "loading" || payoutStatus === "success"}
+                      className="flex-1 btn-hud !border-warden-orange/30 !text-warden-orange hover:!bg-warden-orange/10 py-3 text-xs"
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                    >
+                      {payoutStatus === "loading" ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-3 h-3 border-2 border-warden-orange border-t-transparent rounded-full animate-spin" />
+                          PROCESSING...
+                        </span>
+                      ) : payoutStatus === "success" ? (
+                        "SUBMITTED"
+                      ) : (
+                        "REQUEST PAYOUT"
+                      )}
+                    </motion.button>
+                  </div>
+                </div>
+              </HUDFrame>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 function DashboardContent() {
   const { program } = useProgram();
@@ -140,6 +302,9 @@ function DashboardContent() {
       </motion.div>
 
       <div className="hud-divider mb-8" />
+
+      {/* Treasury & Withdrawals */}
+      <WithdrawalSection />
 
       {/* Agent Grid */}
       {loading ? (
