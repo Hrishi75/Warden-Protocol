@@ -77,4 +77,24 @@ pub mod sentinel_protocol {
     pub fn check_probation(ctx: Context<CheckProbation>) -> Result<()> {
         instructions::report_violation::check_probation_handler(ctx)
     }
+
+    pub fn process_payment(ctx: Context<ProcessPayment>, amount: u64) -> Result<()> {
+        instructions::process_payment::handler(ctx, amount)
+    }
+
+    pub fn init_insurance_pool(ctx: Context<InitInsurancePool>) -> Result<()> {
+        instructions::init_insurance_pool::handler(ctx)
+    }
+
+    pub fn buy_coverage(ctx: Context<BuyCoverage>, tier: InsuranceTier) -> Result<()> {
+        instructions::buy_coverage::handler(ctx, tier)
+    }
+
+    pub fn file_claim(ctx: Context<FileClaim>) -> Result<()> {
+        instructions::file_claim::handler(ctx)
+    }
+
+    pub fn cancel_coverage(ctx: Context<CancelCoverage>) -> Result<()> {
+        instructions::cancel_coverage::handler(ctx)
+    }
 }
