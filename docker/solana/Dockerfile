@@ -16,8 +16,6 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     git \
     ca-certificates \
-    nodejs \
-    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20 (for Anchor tests)
@@ -30,7 +28,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install Solana CLI
-ARG SOLANA_VERSION=1.18.26
+ARG SOLANA_VERSION=2.3.0
 RUN sh -c "$(curl -sSfL https://release.anza.xyz/v${SOLANA_VERSION}/install)" && \
     echo 'export PATH="/root/.local/share/solana/install/active_release/bin:$PATH"' >> /root/.bashrc
 ENV PATH="/root/.local/share/solana/install/active_release/bin:${PATH}"
@@ -43,7 +41,7 @@ RUN cargo install --git https://github.com/coral-xyz/anchor --tag v${ANCHOR_VERS
 RUN solana config set --url devnet
 
 # Set working directory
-WORKDIR /warden
+WORKDIR /sentinel
 
 # Copy program source
 COPY Cargo.toml Cargo.lock ./
@@ -56,8 +54,11 @@ COPY tests/ ./tests/
 # Install Node dependencies for tests
 RUN npm ci
 
-# Build the program
-RUN anchor build
+# Build the program.
+# Solana's bundled SBF toolchain can lag behind Cargo's lockfile format,
+# so downgrade the lockfile header in-container while keeping pinned deps.
+RUN sed -i '0,/^version = 4$/s//version = 3/' Cargo.lock \
+    && anchor build
 
 # Copy deploy script
 COPY docker/solana/entrypoint.sh /entrypoint.sh

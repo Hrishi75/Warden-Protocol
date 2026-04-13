@@ -1,8 +1,8 @@
-use anchor_lang::prelude::*;
-use anchor_lang::system_program;
-use crate::state::*;
 use crate::constants::*;
 use crate::errors::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
+use anchor_lang::system_program;
 
 #[derive(Accounts)]
 pub struct RegisterAgent<'info> {
@@ -20,13 +20,15 @@ pub struct RegisterAgent<'info> {
     )]
     pub agent_record: Account<'info, AgentRecord>,
 
-    /// CHECK: Vault PDA to hold staked SOL
     #[account(
-        mut,
+        init,
+        payer = owner,
+        space = 0,
         seeds = [VAULT_SEED, agent_record.key().as_ref()],
-        bump
+        bump,
+        owner = system_program::ID
     )]
-    pub vault: SystemAccount<'info>,
+    pub vault: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
 }
@@ -36,7 +38,11 @@ pub fn handler(
     permissions: PermissionScope,
     stake_amount: u64,
 ) -> Result<()> {
-    require!(stake_amount > 0, WardenError::InvalidStakeAmount);
+    require!(stake_amount > 0, SentinelError::InvalidStakeAmount);
+    require!(
+        permissions.allowed_programs.len() <= MAX_ALLOWED_PROGRAMS,
+        SentinelError::TooManyAllowedPrograms
+    );
 
     // Transfer stake to vault
     system_program::transfer(
@@ -62,6 +68,10 @@ pub fn handler(
     agent.parole_terms = None;
     agent.bump = ctx.bumps.agent_record;
 
-    msg!("Agent {} registered with {} lamports staked", agent.agent_identity, stake_amount);
+    msg!(
+        "Agent {} registered with {} lamports staked",
+        agent.agent_identity,
+        stake_amount
+    );
     Ok(())
 }

@@ -6,13 +6,13 @@ echo "  SENTINEL PROTOCOL — SOLANA DEPLOYER"
 echo "========================================"
 
 # Check if a wallet keypair was mounted
-if [ -f /warden/wallet/id.json ]; then
+if [ -f /sentinel/wallet/id.json ]; then
     echo "[+] Using mounted wallet keypair"
-    solana config set --keypair /warden/wallet/id.json
+    solana config set --keypair /sentinel/wallet/id.json
 else
     echo "[+] No wallet found, generating new keypair..."
-    solana-keygen new --no-bip39-passphrase --outfile /warden/wallet/id.json --force
-    solana config set --keypair /warden/wallet/id.json
+    solana-keygen new --no-bip39-passphrase --outfile /sentinel/wallet/id.json --force
+    solana config set --keypair /sentinel/wallet/id.json
 fi
 
 # Set cluster
@@ -65,9 +65,9 @@ echo "  Explorer:   https://explorer.solana.com/address/${PROGRAM_KEY}?cluster=$
 echo "========================================"
 
 # Copy IDL for frontend to pick up
-if [ -d /warden/shared ]; then
-    cp target/idl/sentinel_protocol.json /warden/shared/
-    cp target/types/sentinel_protocol.ts /warden/shared/
+if [ -d /sentinel/shared ]; then
+    cp target/idl/sentinel_protocol.json /sentinel/shared/
+    cp target/types/sentinel_protocol.ts /sentinel/shared/
     echo "[+] IDL copied to shared volume"
 fi
 

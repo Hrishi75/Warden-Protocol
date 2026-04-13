@@ -1,7 +1,7 @@
-use anchor_lang::prelude::*;
-use crate::state::*;
 use crate::constants::*;
 use crate::errors::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct ReportViolation<'info> {
@@ -12,7 +12,7 @@ pub struct ReportViolation<'info> {
         mut,
         seeds = [AGENT_SEED, agent_record.agent_identity.as_ref()],
         bump = agent_record.bump,
-        constraint = agent_record.status == AgentStatus::Paroled @ WardenError::AgentNotOnParole
+        constraint = agent_record.status == AgentStatus::Paroled @ SentinelError::AgentNotOnParole
     )]
     pub agent_record: Account<'info, AgentRecord>,
 
@@ -34,7 +34,7 @@ pub struct CheckProbation<'info> {
         mut,
         seeds = [AGENT_SEED, agent_record.agent_identity.as_ref()],
         bump = agent_record.bump,
-        constraint = agent_record.status == AgentStatus::Paroled @ WardenError::AgentNotOnParole
+        constraint = agent_record.status == AgentStatus::Paroled @ SentinelError::AgentNotOnParole
     )]
     pub agent_record: Account<'info, AgentRecord>,
 }
@@ -45,20 +45,29 @@ pub fn report_handler(
     evidence_hash: [u8; 32],
     description: String,
 ) -> Result<()> {
-    require!(description.len() <= MAX_DESCRIPTION_LEN, WardenError::DescriptionTooLong);
+    require!(
+        description.len() <= MAX_DESCRIPTION_LEN,
+        SentinelError::DescriptionTooLong
+    );
 
     // Validate reporter is a DAO member
     let dao = &ctx.accounts.sentinel_dao;
     let reporter_key = ctx.accounts.reporter.key();
-    let is_dao_member = dao.members.iter().any(|m| m.wallet == reporter_key && m.is_active);
+    let is_dao_member = dao
+        .members
+        .iter()
+        .any(|m| m.wallet == reporter_key && m.is_active);
     let is_owner = reporter_key == ctx.accounts.agent_record.owner;
-    require!(is_dao_member || is_owner, WardenError::NotDaoMember);
+    require!(is_dao_member || is_owner, SentinelError::NotDaoMember);
 
     let clock = Clock::get()?;
     let agent = &mut ctx.accounts.agent_record;
 
     // Add violation to rap sheet
-    require!(agent.violations.len() < MAX_VIOLATIONS, WardenError::MaxViolationsReached);
+    require!(
+        agent.violations.len() < MAX_VIOLATIONS,
+        SentinelError::MaxViolationsReached
+    );
     agent.violations.push(Violation {
         timestamp: clock.unix_timestamp,
         violation_type,
@@ -77,7 +86,10 @@ pub fn report_handler(
             let _ = terms;
             agent.status = AgentStatus::Arrested;
             agent.parole_terms = None;
-            msg!("Agent {} auto re-arrested: parole strikes exhausted", agent_id);
+            msg!(
+                "Agent {} auto re-arrested: parole strikes exhausted",
+                agent_id
+            );
         } else {
             msg!(
                 "Violation reported for agent {}. Strikes remaining: {}",
@@ -95,12 +107,18 @@ pub fn check_probation_handler(ctx: Context<CheckProbation>) -> Result<()> {
     let agent = &mut ctx.accounts.agent_record;
 
     if let Some(ref terms) = agent.parole_terms {
-        require!(clock.unix_timestamp >= terms.probation_end, WardenError::ProbationNotEnded);
+        require!(
+            clock.unix_timestamp >= terms.probation_end,
+            SentinelError::ProbationNotEnded
+        );
 
         // Probation ended — full reinstatement
         agent.status = AgentStatus::Active;
         agent.parole_terms = None;
-        msg!("Agent {} probation ended — fully reinstated", agent.agent_identity);
+        msg!(
+            "Agent {} probation ended — fully reinstated",
+            agent.agent_identity
+        );
     }
 
     Ok(())

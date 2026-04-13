@@ -1,7 +1,7 @@
-use anchor_lang::prelude::*;
-use crate::state::*;
 use crate::constants::*;
 use crate::errors::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct CastVote<'info> {
@@ -11,7 +11,7 @@ pub struct CastVote<'info> {
         mut,
         seeds = [BAIL_SEED, cell.key().as_ref()],
         bump = bail_request.bump,
-        constraint = bail_request.outcome == BailOutcome::Pending @ WardenError::VotingClosed
+        constraint = bail_request.outcome == BailOutcome::Pending @ SentinelError::VotingClosed
     )]
     pub bail_request: Account<'info, BailRequest>,
 
@@ -35,26 +35,37 @@ pub struct CastVote<'info> {
 }
 
 pub fn handler(ctx: Context<CastVote>, decision: BailOutcome) -> Result<()> {
+    require!(
+        decision != BailOutcome::Pending,
+        SentinelError::InvalidVoteDecision
+    );
+
     let dao = &ctx.accounts.sentinel_dao;
     let voter_key = ctx.accounts.voter.key();
 
     // Validate voter is an active DAO member
-    let member = dao.members.iter()
+    let member = dao
+        .members
+        .iter()
         .find(|m| m.wallet == voter_key && m.is_active)
-        .ok_or(WardenError::NotDaoMember)?;
+        .ok_or(SentinelError::NotDaoMember)?;
     let weight = member.stake;
 
     let bail = &mut ctx.accounts.bail_request;
 
     // Check voting deadline
     let clock = Clock::get()?;
-    require!(clock.unix_timestamp <= bail.review_deadline, WardenError::VotingPeriodEnded);
+    require!(
+        clock.unix_timestamp <= bail.review_deadline,
+        SentinelError::VotingPeriodEnded
+    );
 
     // Check for duplicate votes
     require!(
         !bail.votes.iter().any(|v| v.voter == voter_key),
-        WardenError::AlreadyVoted
+        SentinelError::AlreadyVoted
     );
+    require!(bail.votes.len() < MAX_VOTES, SentinelError::TooManyVotes);
 
     // Record vote
     bail.votes.push(Vote {
@@ -64,26 +75,40 @@ pub fn handler(ctx: Context<CastVote>, decision: BailOutcome) -> Result<()> {
         timestamp: clock.unix_timestamp,
     });
 
-    msg!("Vote cast by {} with weight {}: {:?}", voter_key, weight, decision);
+    msg!(
+        "Vote cast by {} with weight {}: {:?}",
+        voter_key,
+        weight,
+        decision
+    );
 
     // Tally votes and check threshold
-    let total_stake: u64 = dao.members.iter()
+    let total_stake: u64 = dao
+        .members
+        .iter()
         .filter(|m| m.is_active)
         .map(|m| m.stake)
         .sum();
+    require!(total_stake > 0, SentinelError::InvalidDaoConfig);
 
     let threshold = (total_stake as u128 * dao.vote_threshold as u128) / 100;
 
     // Count votes for each outcome
-    let released_weight: u64 = bail.votes.iter()
+    let released_weight: u64 = bail
+        .votes
+        .iter()
         .filter(|v| v.decision == BailOutcome::Released)
         .map(|v| v.weight)
         .sum();
-    let paroled_weight: u64 = bail.votes.iter()
+    let paroled_weight: u64 = bail
+        .votes
+        .iter()
         .filter(|v| v.decision == BailOutcome::Paroled)
         .map(|v| v.weight)
         .sum();
-    let terminated_weight: u64 = bail.votes.iter()
+    let terminated_weight: u64 = bail
+        .votes
+        .iter()
         .filter(|v| v.decision == BailOutcome::Terminated)
         .map(|v| v.weight)
         .sum();

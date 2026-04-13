@@ -1,8 +1,8 @@
-use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, FreezeAccount, Mint};
-use crate::state::*;
 use crate::constants::*;
 use crate::errors::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, FreezeAccount, Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(reason: String)]
@@ -16,7 +16,7 @@ pub struct ArrestAgent<'info> {
         bump = agent_record.bump,
         constraint = agent_record.status == AgentStatus::Active
             || agent_record.status == AgentStatus::Paroled
-            @ WardenError::AgentNotArrestable
+            @ SentinelError::AgentNotArrestable
     )]
     pub agent_record: Account<'info, AgentRecord>,
 
@@ -45,20 +45,26 @@ pub fn handler(
     evidence_hash: [u8; 32],
     violation_type: ViolationType,
 ) -> Result<()> {
-    require!(reason.len() <= MAX_REASON_LEN, WardenError::ReasonTooLong);
+    require!(reason.len() <= MAX_REASON_LEN, SentinelError::ReasonTooLong);
 
     // Validate arrester is a DAO member or the agent owner
     let dao = &ctx.accounts.sentinel_dao;
     let arrester_key = ctx.accounts.arrester.key();
-    let is_dao_member = dao.members.iter().any(|m| m.wallet == arrester_key && m.is_active);
+    let is_dao_member = dao
+        .members
+        .iter()
+        .any(|m| m.wallet == arrester_key && m.is_active);
     let is_owner = arrester_key == ctx.accounts.agent_record.owner;
-    require!(is_dao_member || is_owner, WardenError::NotDaoMember);
+    require!(is_dao_member || is_owner, SentinelError::NotDaoMember);
 
     let clock = Clock::get()?;
     let agent = &mut ctx.accounts.agent_record;
 
     // Add violation to rap sheet
-    require!(agent.violations.len() < MAX_VIOLATIONS, WardenError::MaxViolationsReached);
+    require!(
+        agent.violations.len() < MAX_VIOLATIONS,
+        SentinelError::MaxViolationsReached
+    );
     agent.violations.push(Violation {
         timestamp: clock.unix_timestamp,
         violation_type,
@@ -81,7 +87,11 @@ pub fn handler(
     cell.bail_posted = false;
     cell.bump = ctx.bumps.cell;
 
-    msg!("Agent {} arrested by {}", agent.agent_identity, arrester_key);
+    msg!(
+        "Agent {} arrested by {}",
+        agent.agent_identity,
+        arrester_key
+    );
     Ok(())
 }
 
@@ -93,7 +103,7 @@ pub struct FreezeAgentToken<'info> {
     #[account(
         seeds = [AGENT_SEED, agent_record.agent_identity.as_ref()],
         bump = agent_record.bump,
-        constraint = agent_record.status == AgentStatus::Arrested @ WardenError::AgentNotArrested
+        constraint = agent_record.status == AgentStatus::Arrested @ SentinelError::AgentNotArrested
     )]
     pub agent_record: Account<'info, AgentRecord>,
 
@@ -119,6 +129,16 @@ pub struct FreezeAgentToken<'info> {
 }
 
 pub fn freeze_token_handler(ctx: Context<FreezeAgentToken>) -> Result<()> {
+    // Validate caller is an active DAO member
+    let dao = &ctx.accounts.sentinel_dao;
+    let caller = ctx.accounts.authority.key();
+    require!(
+        dao.members
+            .iter()
+            .any(|m| m.wallet == caller && m.is_active),
+        SentinelError::NotDaoMember
+    );
+
     let dao_bump = ctx.accounts.sentinel_dao.bump;
     let signer_seeds: &[&[&[u8]]] = &[&[DAO_SEED, &[dao_bump]]];
 
@@ -133,7 +153,16 @@ pub fn freeze_token_handler(ctx: Context<FreezeAgentToken>) -> Result<()> {
     ))?;
 
     let cell = &mut ctx.accounts.cell;
-    cell.frozen_token_accounts.push(ctx.accounts.token_account.key());
+    require!(
+        ctx.accounts.token_account.owner == ctx.accounts.agent_record.agent_identity,
+        SentinelError::NotAgentOwner
+    );
+    require!(
+        cell.frozen_token_accounts.len() < MAX_FROZEN_ACCOUNTS,
+        SentinelError::TooManyFrozenAccounts
+    );
+    cell.frozen_token_accounts
+        .push(ctx.accounts.token_account.key());
 
     msg!("Token account {} frozen", ctx.accounts.token_account.key());
     Ok(())

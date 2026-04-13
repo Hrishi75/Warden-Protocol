@@ -1,21 +1,21 @@
-use anchor_lang::prelude::*;
-use anchor_lang::system_program;
-use crate::state::*;
 use crate::constants::*;
 use crate::errors::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
+use anchor_lang::system_program;
 
 #[derive(Accounts)]
 pub struct PostBail<'info> {
     #[account(
         mut,
-        constraint = owner.key() == agent_record.owner @ WardenError::NotAgentOwner
+        constraint = owner.key() == agent_record.owner @ SentinelError::NotAgentOwner
     )]
     pub owner: Signer<'info>,
 
     #[account(
         seeds = [AGENT_SEED, agent_record.agent_identity.as_ref()],
         bump = agent_record.bump,
-        constraint = agent_record.status == AgentStatus::Arrested @ WardenError::AgentNotArrested
+        constraint = agent_record.status == AgentStatus::Arrested @ SentinelError::AgentNotArrested
     )]
     pub agent_record: Account<'info, AgentRecord>,
 
@@ -23,7 +23,7 @@ pub struct PostBail<'info> {
         mut,
         seeds = [CELL_SEED, agent_record.key().as_ref()],
         bump = cell.bump,
-        constraint = !cell.bail_posted @ WardenError::BailAlreadyPosted
+        constraint = !cell.bail_posted @ SentinelError::BailAlreadyPosted
     )]
     pub cell: Account<'info, Cell>,
 
@@ -36,13 +36,15 @@ pub struct PostBail<'info> {
     )]
     pub bail_request: Account<'info, BailRequest>,
 
-    /// CHECK: Vault PDA to hold bail funds
     #[account(
-        mut,
+        init,
+        payer = owner,
+        space = 0,
         seeds = [BAIL_VAULT_SEED, bail_request.key().as_ref()],
-        bump
+        bump,
+        owner = system_program::ID
     )]
-    pub bail_vault: SystemAccount<'info>,
+    pub bail_vault: UncheckedAccount<'info>,
 
     #[account(
         seeds = [DAO_SEED],
@@ -55,7 +57,10 @@ pub struct PostBail<'info> {
 
 pub fn handler(ctx: Context<PostBail>, bail_amount: u64) -> Result<()> {
     let dao = &ctx.accounts.sentinel_dao;
-    require!(bail_amount >= dao.min_bail_lamports, WardenError::BailBelowMinimum);
+    require!(
+        bail_amount >= dao.min_bail_lamports,
+        SentinelError::BailBelowMinimum
+    );
 
     // Transfer bail to vault
     system_program::transfer(
@@ -81,7 +86,10 @@ pub fn handler(ctx: Context<PostBail>, bail_amount: u64) -> Result<()> {
     bail.owner = ctx.accounts.owner.key();
     bail.bail_amount = bail_amount;
     bail.posted_at = clock.unix_timestamp;
-    bail.review_deadline = clock.unix_timestamp + dao.review_window_seconds;
+    bail.review_deadline = clock
+        .unix_timestamp
+        .checked_add(dao.review_window_seconds)
+        .ok_or(SentinelError::MathOverflow)?;
     bail.votes = Vec::new();
     bail.outcome = BailOutcome::Pending;
     bail.bump = ctx.bumps.bail_request;

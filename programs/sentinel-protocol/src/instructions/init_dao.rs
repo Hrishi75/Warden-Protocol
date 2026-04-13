@@ -1,6 +1,7 @@
-use anchor_lang::prelude::*;
-use crate::state::*;
 use crate::constants::*;
+use crate::errors::*;
+use crate::state::*;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct InitDao<'info> {
@@ -30,6 +31,24 @@ pub fn handler(
     slash_percentage: u8,
     initial_members: Vec<DaoMember>,
 ) -> Result<()> {
+    require!(!initial_members.is_empty(), SentinelError::InvalidDaoConfig);
+    require!(
+        initial_members.len() <= MAX_DAO_MEMBERS,
+        SentinelError::TooManyDaoMembers
+    );
+    require!(
+        (1..=100).contains(&vote_threshold),
+        SentinelError::InvalidVoteThreshold
+    );
+    require!(
+        review_window_seconds > 0,
+        SentinelError::InvalidReviewWindow
+    );
+    require!(
+        slash_percentage <= 100,
+        SentinelError::InvalidSlashPercentage
+    );
+
     let dao = &mut ctx.accounts.sentinel_dao;
     dao.authority = ctx.accounts.authority.key();
     dao.members = initial_members;
@@ -40,6 +59,9 @@ pub fn handler(
     dao.treasury = ctx.accounts.treasury.key();
     dao.bump = ctx.bumps.sentinel_dao;
 
-    msg!("Sentinel DAO initialized with {} members", dao.members.len());
+    msg!(
+        "Sentinel DAO initialized with {} members",
+        dao.members.len()
+    );
     Ok(())
 }
