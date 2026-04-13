@@ -105,3 +105,64 @@ export interface SentinelDao {
   treasury: PublicKey;
   bump: number;
 }
+
+// Insurance types
+export enum InsuranceTier {
+  Basic = "Basic",
+  Standard = "Standard",
+  Premium = "Premium",
+}
+
+export enum ClaimStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+}
+
+export interface InsurancePolicy {
+  agentRecord: PublicKey;
+  owner: PublicKey;
+  tier: { basic: {} } | { standard: {} } | { premium: {} };
+  premiumPaid: BN;
+  coverageAmount: BN;
+  activatedAt: BN;
+  expiresAt: BN;
+  isActive: boolean;
+  claimed: boolean;
+  bump: number;
+}
+
+export interface InsurancePool {
+  totalDeposits: BN;
+  totalClaimsPaid: BN;
+  activePolicies: number;
+  authority: PublicKey;
+  bump: number;
+}
+
+export interface InsuranceClaim {
+  policy: PublicKey;
+  agentRecord: PublicKey;
+  claimant: PublicKey;
+  claimAmount: BN;
+  filedAt: BN;
+  status: { pending: {} } | { approved: {} } | { rejected: {} };
+  bump: number;
+}
+
+// Payment types for Dodo Payments integration
+export interface PaymentRecord {
+  paymentId: string;
+  agentIdentity: string;
+  owner: string;
+  amount: number;
+  currency: string;
+  status: "pending" | "succeeded" | "failed";
+  createdAt: number;
+}
+
+export interface PayoutRequest {
+  ownerPublicKey: string;
+  amount: number;
+  currency: "INR" | "USD";
+}
