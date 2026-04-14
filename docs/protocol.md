@@ -15,6 +15,11 @@ Instruction-level behavior, account models, and governance/economic mechanics.
 | `release_agent` | Execute voting outcome — reinstate, parole, or terminate + slash |
 | `report_violation` | Report a parole violation, auto re-arrest at zero strikes |
 | `check_probation` | Check if probation ended, auto-reinstate to Active |
+| `process_payment` | Process a payment through the protocol with 0.3% fee to treasury |
+| `init_insurance_pool` | Initialize the insurance pool (DAO authority only) |
+| `buy_coverage` | Purchase insurance coverage (Basic / Standard / Premium tiers) |
+| `file_claim` | File an insurance claim (only for terminated agents) |
+| `cancel_coverage` | Cancel an active insurance policy |
 
 ---
 
@@ -198,6 +203,88 @@ Checks if an agent's probation period has ended and reinstates them.
 
 **Effects:** If `clock.unix_timestamp >= probation_end` → status set to `Active`, parole terms cleared.
 
+### process_payment
+
+Processes a payment through the protocol, collecting a 0.3% (30 bps) fee for the DAO treasury.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| `amount` | `u64` | Payment amount in lamports |
+
+**Accounts:**
+| Name | Type | Description |
+|------|------|-------------|
+| `payer` | `Signer` | Payment sender |
+| `agent_record` | `Account<AgentRecord>` | Agent processing the payment |
+| `sentinel_dao` | `Account<SentinelDao>` | DAO config (for treasury address) |
+| `treasury` | `SystemAccount` | Receives the 0.3% fee |
+| `system_program` | `Program<System>` | System program |
+
+### init_insurance_pool
+
+Initializes the global insurance pool. Can only be called by the DAO authority.
+
+**Accounts:**
+| Name | Type | Description |
+|------|------|-------------|
+| `authority` | `Signer` | Must be the DAO authority |
+| `sentinel_dao` | `Account<SentinelDao>` | DAO config |
+| `insurance_pool` | `Account<InsurancePool>` | PDA `["insurance_pool"]` — initialized |
+| `insurance_vault` | `UncheckedAccount` | PDA `["insurance_vault", insurance_pool]` — initialized |
+| `system_program` | `Program<System>` | System program |
+
+### buy_coverage
+
+Purchase insurance coverage for an agent. Three tiers available:
+
+| Tier | Premium (% of stake) | Coverage (% of stake) |
+|------|---------------------|----------------------|
+| Basic | 5% | 50% |
+| Standard | 10% | 100% |
+| Premium | 18% | 150% |
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| `tier` | `InsuranceTier` | `Basic`, `Standard`, or `Premium` |
+
+**Accounts:**
+| Name | Type | Description |
+|------|------|-------------|
+| `owner` | `Signer` | Must be the agent owner |
+| `agent_record` | `Account<AgentRecord>` | Agent to insure |
+| `insurance_policy` | `Account<InsurancePolicy>` | PDA `["insurance_policy", agent_record]` — initialized |
+| `insurance_pool` | `Account<InsurancePool>` | Global pool |
+| `insurance_vault` | `UncheckedAccount` | Pool vault (receives premium) |
+| `system_program` | `Program<System>` | System program |
+
+### file_claim
+
+File an insurance claim for a terminated agent.
+
+**Accounts:**
+| Name | Type | Description |
+|------|------|-------------|
+| `owner` | `Signer` | Must be the agent owner |
+| `agent_record` | `Account<AgentRecord>` | Must be Terminated |
+| `insurance_policy` | `Account<InsurancePolicy>` | Active policy, not yet claimed |
+| `insurance_claim` | `Account<InsuranceClaim>` | PDA `["insurance_claim", policy]` — initialized |
+| `insurance_pool` | `Account<InsurancePool>` | Global pool |
+| `insurance_vault` | `UncheckedAccount` | Pool vault (pays out claim) |
+| `system_program` | `Program<System>` | System program |
+
+### cancel_coverage
+
+Cancel an active insurance policy.
+
+**Accounts:**
+| Name | Type | Description |
+|------|------|-------------|
+| `owner` | `Signer` | Must be the policy owner |
+| `insurance_policy` | `Account<InsurancePolicy>` | Active policy to cancel |
+| `insurance_pool` | `Account<InsurancePool>` | Global pool (decrements active count) |
+
 ---
 
 ## Account Structures
@@ -232,6 +319,27 @@ DAO configuration:
 - Member list with stakes
 - Vote threshold, review window, minimum bail
 - Slash percentage, treasury address
+
+### InsurancePool — `PDA["insurance_pool"]` (singleton)
+
+Global insurance pool:
+- Total deposits and claims paid
+- Active policy count
+- Pool authority
+
+### InsurancePolicy — `PDA["insurance_policy", agent_record]`
+
+Per-agent insurance coverage:
+- Tier (Basic / Standard / Premium)
+- Premium paid, coverage amount
+- Activation and expiration timestamps
+- Claimed status
+
+### InsuranceClaim — `PDA["insurance_claim", insurance_policy]`
+
+Filed when a terminated agent's owner claims insurance:
+- Claim amount, filing timestamp
+- Status: Pending / Approved / Rejected
 
 ---
 
@@ -274,12 +382,27 @@ Voting uses an eager-tally approach:
 
 ---
 
+## SDK
+
+All instructions, account fetchers, PDA helpers, and types are available through the `@sentinel-protocol/sdk` package. See the [SDK README](../sdk/README.md) for the full API reference.
+
+```typescript
+import { SentinelClient } from "@sentinel-protocol/sdk";
+
+const client = new SentinelClient({ connection, wallet });
+await client.registerAgent(owner, agentKeypair, permissions, stakeAmount);
+await client.buyCoverage(owner, agentKeypair.publicKey, { premium: {} });
+```
+
+---
+
 ## What Makes It Novel
 
 
 - First agent-native accountability primitive on Solana
 - Stake-slashing creates real economic consequences for bad agent behavior
 - Parole mode is a genuinely new primitive — not binary freeze/unfreeze
+- Insurance tiers provide configurable risk coverage for agent operators
 - Composable — any protocol can integrate Sentinel to govern their agents
 - Directly addresses the biggest unsolved problem in the agentic AI stack
 

@@ -1,6 +1,22 @@
 ﻿# Development Guide
 
 Run the frontend, tests, and full lifecycle simulation.
+## Building the SDK
+
+The app depends on `@sentinel-protocol/sdk` (linked locally via `file:../sdk`). Build it before running the frontend:
+
+```bash
+cd sdk
+npm install
+npm run build
+```
+
+This outputs dual ESM + CJS bundles to `sdk/dist/`. If you modify SDK source files, rebuild before testing in the app.
+
+The SDK provides the `SentinelClient` class and all instruction builders, account fetchers, PDA helpers, and types. See [SDK README](../sdk/README.md) for the full API.
+
+---
+
 ## Running the Frontend
 
 

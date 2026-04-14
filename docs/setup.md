@@ -32,8 +32,11 @@ cd sentinel-protocol
 ### 2. Install Dependencies
 
 ```bash
-# Root dependencies (Anchor tests, SDK)
+# Root dependencies (Anchor tests)
 npm install
+
+# Build the SDK (required before the frontend)
+cd sdk && npm install && npm run build && cd ..
 
 # Frontend dependencies
 cd app && npm install && cd ..
