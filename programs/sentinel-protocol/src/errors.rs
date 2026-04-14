@@ -2,6 +2,28 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum SentinelError {
+    #[msg("DAO configuration is invalid")]
+    InvalidDaoConfig,
+    #[msg("Vote threshold must be between 1 and 100")]
+    InvalidVoteThreshold,
+    #[msg("Review window must be greater than zero")]
+    InvalidReviewWindow,
+    #[msg("Slash percentage must be between 0 and 100")]
+    InvalidSlashPercentage,
+    #[msg("Too many DAO members configured")]
+    TooManyDaoMembers,
+    #[msg("Too many allowed programs configured")]
+    TooManyAllowedPrograms,
+    #[msg("Too many votes recorded for this bail request")]
+    TooManyVotes,
+    #[msg("Too many frozen token accounts tracked for this cell")]
+    TooManyFrozenAccounts,
+    #[msg("Vote decision cannot remain pending")]
+    InvalidVoteDecision,
+    #[msg("Insurance pool has reached the maximum number of active policies")]
+    TooManyActivePolicies,
+    #[msg("Math overflow")]
+    MathOverflow,
     #[msg("Agent is not in a state that allows arrest")]
     AgentNotArrestable,
     #[msg("Agent is not currently arrested")]
