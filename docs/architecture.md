@@ -50,7 +50,7 @@ sentinel-protocol/
 │   │   ├── cell.rs                     # Cell (arrest context)
 │   │   ├── bail.rs                     # BailRequest, VoteRecord, BailOutcome
 │   │   └── dao.rs                      # SentinelDao, DaoMember
-│   ├── instructions/                   # All 9 instructions
+│   ├── instructions/                   # All 13 instructions
 │   │   ├── init_dao.rs
 │   │   ├── register_agent.rs
 │   │   ├── arrest_agent.rs
@@ -59,7 +59,12 @@ sentinel-protocol/
 │   │   ├── cast_vote.rs
 │   │   ├── release_agent.rs
 │   │   ├── report_violation.rs
-│   │   └── check_probation.rs
+│   │   ├── check_probation.rs
+│   │   ├── process_payment.rs
+│   │   ├── init_insurance_pool.rs
+│   │   ├── buy_coverage.rs
+│   │   ├── file_claim.rs
+│   │   └── cancel_coverage.rs
 │   ├── errors.rs                       # Custom error codes
 │   └── constants.rs                    # PDA seeds, limits, defaults
 ├── app/                                # Next.js frontend + backend
@@ -92,14 +97,24 @@ sentinel-protocol/
 │   │   │   ├── profile-api.ts          # Client-side profile fetch helpers
 │   │   │   ├── wallet-api.ts           # Client-side wallet connect helper
 │   │   │   ├── audit.ts                # Audit log utility
-│   │   │   ├── program.ts              # Browser Anchor client
-│   │   │   └── program-server.ts       # Server-side read-only Anchor client
+│   │   │   ├── program.ts              # Browser Anchor client (re-exports from SDK)
+│   │   │   └── program-server.ts       # Server-side read-only client (uses SDK)
 │   │   └── providers/                  # Wallet + Auth providers
 │   ├── public/                         # Static assets
 │   └── tailwind.config.ts              # Gaming HUD theme
-├── sdk/src/                            # TypeScript SDK
-│   ├── pda.ts                          # PDA derivation helpers
-│   └── types.ts                        # On-chain type mirrors
+├── sdk/                                # TypeScript SDK (@sentinel-protocol/sdk)
+│   ├── src/
+│   │   ├── index.ts                    # Barrel re-exports
+│   │   ├── constants.ts                # DEFAULT_PROGRAM_ID
+│   │   ├── pda.ts                      # PDA derivation helpers
+│   │   ├── types.ts                    # On-chain type mirrors
+│   │   ├── helpers.ts                  # Enum-to-string converters
+│   │   ├── client.ts                   # SentinelClient class
+│   │   ├── idl/                        # Bundled Anchor IDL
+│   │   ├── instructions/               # All instruction builders
+│   │   └── accounts/                   # Account fetchers
+│   ├── package.json                    # Published to GitHub Packages
+│   └── tsup.config.ts                  # Dual ESM + CJS build
 ├── agent-sim/src/                      # Agent simulation
 │   ├── demo-flow.ts                    # Full lifecycle demo
 │   ├── rogue-agent.ts                  # Simulated rogue AI agent
@@ -129,6 +144,10 @@ sentinel-protocol/
 | `BailRequest` | `["bail", cell_pda]` | Created on bail, closed on release |
 | `Vault` (stake) | `["vault", agent_record_pda]` | Holds staked SOL |
 | `BailVault` | `["bail_vault", bail_request_pda]` | Holds bail SOL |
+| `InsurancePool` | `["insurance_pool"]` | Permanent (singleton) |
+| `InsurancePolicy` | `["insurance_policy", agent_record_pda]` | Created on coverage purchase |
+| `InsuranceVault` | `["insurance_vault", insurance_pool_pda]` | Holds insurance pool funds |
+| `InsuranceClaim` | `["insurance_claim", insurance_policy_pda]` | Created on claim filing |
 
 ---
 
@@ -237,7 +256,7 @@ POST /api/indexer/run
   └─ logAudit("indexer.run", ...)
 ```
 
-The indexer uses a server-side read-only Anchor client ([program-server.ts](../app/src/lib/program-server.ts)) with a dummy wallet — it never signs or submits transactions. Trigger it on page load, via cron, or manually.
+The indexer uses `SentinelClient.readOnly()` from the SDK ([program-server.ts](../app/src/lib/program-server.ts)) — it never signs or submits transactions. Trigger it on page load, via cron, or manually.
 
 ### Authentication & Profile Flow
 

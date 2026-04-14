@@ -27,15 +27,20 @@ This should output:
 5DCbrjFHUdzLHLayUUdFJBnBPC8UV7eUc3wJA1rVRQTa
 ```
 
-If it's **different**, update the ID in three places:
+If it's **different**, update the ID in these places:
 
 | File | Location |
 |------|----------|
 | `Anchor.toml` | Line 8: `sentinel_protocol = "YOUR_ID"` |
 | `programs/sentinel-protocol/src/lib.rs` | Line 11: `declare_id!("YOUR_ID")` |
-| `app/src/lib/program.ts` | Line 7-9: `PROGRAM_ID = new PublicKey("YOUR_ID")` |
+| `sdk/src/constants.ts` | `DEFAULT_PROGRAM_ID = new PublicKey("YOUR_ID")` |
+| `sdk/src/idl/sentinel_protocol.json` | `"address": "YOUR_ID"` |
 
-Then rebuild: `anchor build`
+Then rebuild:
+```bash
+anchor build
+cd sdk && npm run build
+```
 
 ### Step 3: Deploy
 
@@ -76,6 +81,7 @@ anchor upgrade target/deploy/sentinel_protocol.so \
 
 Defined in:
 - `programs/sentinel-protocol/src/lib.rs` — `declare_id!` macro
-- `app/src/lib/program.ts` — Frontend `PROGRAM_ID`
+- `sdk/src/constants.ts` — SDK `DEFAULT_PROGRAM_ID`
+- `sdk/src/idl/sentinel_protocol.json` — IDL `address` field
 - `Anchor.toml` — Anchor config
 

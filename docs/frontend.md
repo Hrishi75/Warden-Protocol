@@ -80,4 +80,8 @@ If the wallet has no agent yet, the dashboard should emphasize:
 | Auth | Wallet connection + optional signed profile |
 | Persistence | Prisma + PostgreSQL |
 | Agent Simulation | TypeScript |
-| SDK | TypeScript |
+| SDK | `@sentinel-protocol/sdk` — TypeScript client with `SentinelClient` class, published to GitHub Packages |
+
+The frontend imports all on-chain interaction logic (instruction builders, account fetchers, PDA helpers) from the SDK via `app/src/lib/program.ts`, which re-exports SDK functions with app-specific defaults. Server-side read-only access uses `SentinelClient.readOnly()` in `app/src/lib/program-server.ts`.
+
+See the [SDK README](../sdk/README.md) for the full API reference.
