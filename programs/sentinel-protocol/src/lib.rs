@@ -71,7 +71,12 @@ pub mod sentinel_protocol {
         evidence_hash: [u8; 32],
         description: String,
     ) -> Result<()> {
-        instructions::report_violation::report_handler(ctx, violation_type, evidence_hash, description)
+        instructions::report_violation::report_handler(
+            ctx,
+            violation_type,
+            evidence_hash,
+            description,
+        )
     }
 
     pub fn check_probation(ctx: Context<CheckProbation>) -> Result<()> {

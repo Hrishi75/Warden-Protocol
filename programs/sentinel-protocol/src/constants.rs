@@ -29,9 +29,9 @@ pub const INSURANCE_PERIOD_SECONDS: i64 = 2_592_000; // 30 days (demo: 300)
 pub const MAX_ACTIVE_POLICIES: u32 = 1000;
 
 // Tier config: (premium_bps, coverage_bps) relative to agent stake
-pub const BASIC_PREMIUM_BPS: u64 = 500;      // 5%
-pub const BASIC_COVERAGE_BPS: u64 = 5000;    // 50%
-pub const STANDARD_PREMIUM_BPS: u64 = 1000;  // 10%
+pub const BASIC_PREMIUM_BPS: u64 = 500; // 5%
+pub const BASIC_COVERAGE_BPS: u64 = 5000; // 50%
+pub const STANDARD_PREMIUM_BPS: u64 = 1000; // 10%
 pub const STANDARD_COVERAGE_BPS: u64 = 10000; // 100%
-pub const PREMIUM_PREMIUM_BPS: u64 = 1800;   // 18%
+pub const PREMIUM_PREMIUM_BPS: u64 = 1800; // 18%
 pub const PREMIUM_COVERAGE_BPS: u64 = 15000; // 150%
