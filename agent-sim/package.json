@@ -1,13 +1,13 @@
 {
-  "name": "@warden-protocol/agent-sim",
+  "name": "@sentinel-protocol/agent-sim",
   "version": "0.1.0",
-  "description": "Agent simulation and demo scripts for Warden Protocol",
+  "description": "Agent simulation and demo scripts for Sentinel Protocol",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "demo": "ts-node src/demo-flow.ts",
     "rogue": "ts-node src/rogue-agent.ts",
-    "monitor": "ts-node src/warden-monitor.ts"
+    "monitor": "ts-node src/sentinel-monitor.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",

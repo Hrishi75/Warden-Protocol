@@ -1,2 +1,2 @@
 export { RogueAgent } from "./rogue-agent";
-export { WardenMonitor } from "./warden-monitor";
+export { SentinelMonitor } from "./sentinel-monitor";

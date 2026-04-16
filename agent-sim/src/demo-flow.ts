@@ -92,7 +92,7 @@ async function runDemo() {
   );
 
   // ═══════════════════════════════════════════════════════════
-  // STEP 1: Initialize Warden DAO
+  // STEP 1: Initialize Sentinel DAO
   // ═══════════════════════════════════════════════════════════
   log(1, "INITIALIZE SENTINEL DAO");
   console.log("  Creating DAO with 2 jury members...");
@@ -136,14 +136,14 @@ async function runDemo() {
   // ═══════════════════════════════════════════════════════════
   log(4, "🚨 AGENT GOES ROGUE");
   console.log("  TX 4: Transfer 0.5 SOL → ❌ EXCEEDS 0.1 SOL LIMIT!");
-  console.log("  ⚠️  Violation detected by Warden Monitor");
+  console.log("  ⚠️  Violation detected by Sentinel Monitor");
   console.log("  Violation type: ExceededTransferLimit");
   console.log("  Evidence hash: 0x" + "a1b2c3d4e5f6".repeat(5).slice(0, 64));
 
   await sleep(2000);
 
   // ═══════════════════════════════════════════════════════════
-  // STEP 5: Warden Arrests Agent
+  // STEP 5: Sentinel Arrests Agent
   // ═══════════════════════════════════════════════════════════
   log(5, "🔒 AGENT ARRESTED");
   console.log(`  Arrester: DAO Member 1 (${daoMember1.publicKey.toBase58().slice(0, 16)}...)`);
@@ -231,7 +231,7 @@ async function runDemo() {
   console.log("║  Register → Rogue → Arrest → Bail → Vote → Parole →    ║");
   console.log("║  Probation → Reinstatement                               ║");
   console.log("║                                                          ║");
-  console.log("║  Warden Protocol: Who watches the agents?               ║");
+  console.log("║  Sentinel Protocol: Who watches the agents?               ║");
   console.log("╚══════════════════════════════════════════════════════════╝\n");
 }
 

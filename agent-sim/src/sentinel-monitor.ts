@@ -20,7 +20,7 @@ export interface DetectedViolation {
   amount?: number;
 }
 
-export class WardenMonitor {
+export class SentinelMonitor {
   connection: Connection;
   agents: Map<string, MonitoredAgent> = new Map();
   dailyTxCounts: Map<string, number> = new Map();
