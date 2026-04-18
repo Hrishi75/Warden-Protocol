@@ -12,9 +12,32 @@ Sentinel Protocol gives developers, DAOs, and protocols a structured way to moni
 - [Development Guide](docs/development.md)
 - [Architecture Guide](docs/architecture.md)
 - [Protocol Reference](docs/protocol.md)
+- [SDK Reference](sdk/README.md)
 - [Frontend Guide](docs/frontend.md)
+- [Wallet-First Roadmap](docs/wallet-first-roadmap.md)
 - [Troubleshooting Guide](docs/troubleshooting.md)
 - [Contributing](CONTRIBUTING.md)
+
+## SDK
+
+The `@sentinel-protocol/sdk` package provides a complete TypeScript client for the Sentinel Protocol program. Install it from GitHub Packages:
+
+```bash
+npm install @sentinel-protocol/sdk
+```
+
+```typescript
+import { SentinelClient } from "@sentinel-protocol/sdk";
+
+const client = new SentinelClient({ connection, wallet });
+await client.registerAgent(owner, agentKeypair, permissions, stakeAmount);
+
+// Read-only access (dashboards, indexers, bots)
+const reader = SentinelClient.readOnly(connection);
+const agents = await reader.fetchAllAgents();
+```
+
+See the full [SDK documentation](sdk/README.md).
 
 ## Quick Start
 
@@ -22,6 +45,7 @@ Sentinel Protocol gives developers, DAOs, and protocols a structured way to moni
 git clone https://github.com/your-username/sentinel-protocol.git
 cd sentinel-protocol
 npm install
+cd sdk && npm install && npm run build && cd ..
 cd app && npm install && cd ..
 ```
 

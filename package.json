@@ -1,5 +1,5 @@
 {
-  "name": "warden-protocol",
+  "name": "sentinel-protocol",
   "version": "0.1.0",
   "description": "On-chain accountability and containment system for autonomous AI agents on Solana",
   "scripts": {

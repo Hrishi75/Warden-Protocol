@@ -21,6 +21,9 @@ anchor test
 # Optional: run against devnet
 anchor test --provider.cluster devnet --skip-local-validator
 
+# Build the SDK (required before frontend)
+cd sdk && npm run build && cd ..
+
 # Frontend checks
 cd app
 npm run build
