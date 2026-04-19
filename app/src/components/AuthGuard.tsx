@@ -3,19 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/providers/AuthProvider";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { WalletButton } from "./WalletButton";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, walletConnected } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && walletConnected && !isAuthenticated) {
-      router.push("/auth");
-    }
-  }, [isLoading, walletConnected, isAuthenticated, router]);
+  const { isLoading, walletConnected } = useAuth();
 
   if (isLoading) {
     return (
@@ -45,7 +36,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       >
         <div className="hud-frame text-center p-12 max-w-md">
           <div className="text-alert-red font-mono text-xs tracking-widest mb-6 uppercase">
-            ⚠ UPLINK REQUIRED
+            UPLINK REQUIRED
           </div>
           <h2 className="text-2xl font-bold text-white mb-3 font-mono">
             NO NEURAL LINK DETECTED
@@ -59,24 +50,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           <div className="mt-6 hud-divider" />
           <p className="text-gray-600 text-xs font-mono mt-4 tracking-wider">
             SUPPORTED: PHANTOM / SOLFLARE
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <motion.div
-        className="min-h-[60vh] flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="hud-frame text-center p-12">
-          <div className="w-8 h-8 border-2 border-sentinel-orange border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sentinel-orange text-sm tracking-widest uppercase">
-            Redirecting to registration terminal...
           </p>
         </div>
       </motion.div>
