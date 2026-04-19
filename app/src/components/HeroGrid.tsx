@@ -40,7 +40,7 @@ export function HeroGrid() {
       ].map((dot, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-warden-cyan"
+          className="absolute rounded-full bg-sentinel-cyan"
           style={{
             left: dot.x,
             top: dot.y,
