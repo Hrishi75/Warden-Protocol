@@ -49,7 +49,7 @@ export function MobileMenu({ isOpen, onClose, links, pathname }: MobileMenuProps
         {/* Close */}
         <button
           onClick={onClose}
-          className="self-end p-2 text-gray-500 hover:text-warden-cyan transition"
+          className="self-end p-2 text-gray-500 hover:text-sentinel-cyan transition"
           aria-label="Close menu"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -59,20 +59,20 @@ export function MobileMenu({ isOpen, onClose, links, pathname }: MobileMenuProps
         </button>
 
         {/* Branding */}
-        <div className="font-mono text-xs text-warden-cyan/50 tracking-[0.3em] mb-2">
+        <div className="font-mono text-xs text-sentinel-cyan/50 tracking-[0.3em] mb-2">
           NAVIGATION
         </div>
 
-        <nav className="flex flex-col gap-0 border border-warden-border/30">
+        <nav className="flex flex-col gap-0 border border-sentinel-border/30">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={onClose}
-              className={`px-4 py-3 font-mono text-xs tracking-wider transition border-b border-warden-border/20 last:border-b-0 ${
+              className={`px-4 py-3 font-mono text-xs tracking-wider transition border-b border-sentinel-border/20 last:border-b-0 ${
                 pathname === link.href
-                  ? "text-warden-cyan bg-warden-cyan/10 border-l-2 border-l-warden-cyan"
-                  : "text-gray-400 hover:text-warden-cyan hover:bg-warden-cyan/5"
+                  ? "text-sentinel-cyan bg-sentinel-cyan/10 border-l-2 border-l-sentinel-cyan"
+                  : "text-gray-400 hover:text-sentinel-cyan hover:bg-sentinel-cyan/5"
               }`}
             >
               {link.label}

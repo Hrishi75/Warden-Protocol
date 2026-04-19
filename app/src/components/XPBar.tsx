@@ -18,7 +18,7 @@ export function XPBar({ current, required, progress, className = "" }: XPBarProp
           {current} / {required}
         </span>
       </div>
-      <div className="h-1 bg-warden-border/50 overflow-hidden">
+      <div className="h-1 bg-sentinel-border/50 overflow-hidden">
         <div
           className="h-full transition-all duration-1000 ease-out"
           style={{

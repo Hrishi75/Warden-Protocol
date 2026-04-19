@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useAuth } from "@/providers/AuthProvider";
+import { isProfileComplete } from "@/lib/auth";
 import { WalletButton } from "@/components/WalletButton";
 import { MobileMenu } from "@/components/MobileMenu";
 import { OperativeCard } from "@/components/OperativeCard";
@@ -13,12 +14,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const primaryLinks = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/register", label: "Deploy Agent" },
+  { href: "/register", label: "Register Agent" },
 ];
 
 const dropdownLinks = [
   { href: "/dao", label: "Governance" },
-  { href: "/demo", label: "Live Demo" },
+  { href: "/demo", label: "Demo" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -35,7 +36,7 @@ export function NavBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { operative, isAuthenticated, walletConnected, signOut } = useAuth();
+  const { operative, walletConnected, signOut } = useAuth();
 
   const handleDisconnect = () => {
     signOut();
@@ -75,7 +76,7 @@ export function NavBar() {
       >
         <div className="w-full max-w-5xl relative">
           <nav
-            className="w-full border border-warden-cyan/10 transition-all duration-300"
+            className="w-full border border-sentinel-cyan/10 transition-all duration-300"
             style={{
               background: "rgba(11, 13, 26, 0.75)",
               backdropFilter: "blur(24px) saturate(1.4)",
@@ -100,15 +101,15 @@ export function NavBar() {
               <div className="flex items-center gap-6">
                 <Link href="/" className="flex items-center gap-3 group">
                   <Image
-                    src="/sentinelprotocol.png"
+                    src="/sentinel.png"
                     alt="Sentinel Protocol"
                     width={32}
                     height={32}
                     className="group-hover:drop-shadow-[0_0_8px_rgba(0,229,204,0.5)] transition-all duration-300"
                   />
                   <span className="text-base font-bold tracking-[0.15em] font-mono">
-                    <span className="text-warden-cyan">SENTINEL</span>
-                    <span className="text-warden-orange">.</span>
+                    <span className="text-sentinel-cyan">SENTINEL</span>
+                    <span className="text-sentinel-orange">.</span>
                   </span>
                 </Link>
 
@@ -120,15 +121,15 @@ export function NavBar() {
                       href={link.href}
                       className={`relative px-3 py-2 text-xs font-mono tracking-wider uppercase transition-all duration-200 ${
                         pathname === link.href
-                          ? "text-warden-cyan bg-warden-cyan/10"
-                          : "text-gray-500 hover:text-warden-cyan/70 hover:bg-warden-cyan/5"
+                          ? "text-sentinel-cyan bg-sentinel-cyan/10"
+                          : "text-gray-500 hover:text-sentinel-cyan/70 hover:bg-sentinel-cyan/5"
                       }`}
                     >
                       {link.label}
                       {pathname === link.href && (
                         <motion.div
                           layoutId="navIndicator"
-                          className="absolute bottom-0 left-0 right-0 h-[2px] bg-warden-cyan"
+                          className="absolute bottom-0 left-0 right-0 h-[2px] bg-sentinel-cyan"
                           transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                         />
                       )}
@@ -141,8 +142,8 @@ export function NavBar() {
                     onClick={() => setDropdownOpen((o) => !o)}
                     className={`relative flex items-center gap-1.5 px-3 py-2 text-xs font-mono tracking-wider uppercase transition-all duration-200 ${
                       isDropdownActive || dropdownOpen
-                        ? "text-warden-cyan bg-warden-cyan/10"
-                        : "text-gray-500 hover:text-warden-cyan/70 hover:bg-warden-cyan/5"
+                        ? "text-sentinel-cyan bg-sentinel-cyan/10"
+                        : "text-gray-500 hover:text-sentinel-cyan/70 hover:bg-sentinel-cyan/5"
                     }`}
                   >
                     MORE
@@ -160,7 +161,7 @@ export function NavBar() {
                     {isDropdownActive && (
                       <motion.div
                         layoutId="navIndicator"
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-warden-cyan"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-sentinel-cyan"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                       />
                     )}
@@ -171,13 +172,21 @@ export function NavBar() {
               {/* Right Side */}
               <div className="flex items-center gap-3">
                 <AnimatePresence>
-                  {isAuthenticated && operative && (
+                  {walletConnected && operative && (
                     <motion.div
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className="hidden md:block"
+                      className="hidden md:flex items-center gap-2"
                     >
+                      {!isProfileComplete(operative) && (
+                        <Link
+                          href="/auth"
+                          className="px-3 py-1.5 font-mono text-[10px] tracking-wider text-sentinel-orange border border-sentinel-orange/30 hover:bg-sentinel-orange/10 transition-all"
+                        >
+                          GOVERNANCE PROFILE
+                        </Link>
+                      )}
                       <Link href="/profile" className="hover:opacity-80 transition-opacity">
                         <OperativeCard compact />
                       </Link>
@@ -206,7 +215,7 @@ export function NavBar() {
                 {/* Mobile Hamburger */}
                 <button
                   onClick={() => setMobileMenuOpen(true)}
-                  className="md:hidden p-2 text-gray-500 hover:text-warden-cyan transition"
+                  className="md:hidden p-2 text-gray-500 hover:text-sentinel-cyan transition"
                   aria-label="Open menu"
                 >
                   <svg
@@ -236,7 +245,7 @@ export function NavBar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.15 }}
-                className="absolute left-[200px] mt-1 min-w-[180px] border border-warden-cyan/10 z-[60]"
+                className="absolute left-[200px] mt-1 min-w-[180px] border border-sentinel-cyan/10 z-[60]"
                 style={{
                   background: "rgba(11, 13, 26, 0.95)",
                   backdropFilter: "blur(24px)",
@@ -248,10 +257,10 @@ export function NavBar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setDropdownOpen(false)}
-                    className={`block px-4 py-3 text-xs font-mono tracking-wider uppercase transition-all duration-200 border-b border-warden-cyan/5 last:border-b-0 ${
+                    className={`block px-4 py-3 text-xs font-mono tracking-wider uppercase transition-all duration-200 border-b border-sentinel-cyan/5 last:border-b-0 ${
                       pathname === link.href
-                        ? "text-warden-cyan bg-warden-cyan/10 border-l-2 border-l-warden-cyan"
-                        : "text-gray-400 hover:text-warden-cyan hover:bg-warden-cyan/5"
+                        ? "text-sentinel-cyan bg-sentinel-cyan/10 border-l-2 border-l-sentinel-cyan"
+                        : "text-gray-400 hover:text-sentinel-cyan hover:bg-sentinel-cyan/5"
                     }`}
                   >
                     {link.label}

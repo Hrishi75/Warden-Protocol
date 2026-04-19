@@ -55,7 +55,7 @@ export function LiveTimeline() {
   return (
     <div ref={ref} className="w-full max-w-4xl mx-auto">
       {/* Progress bar */}
-      <div className="relative h-[2px] bg-warden-border/30 mb-8 overflow-hidden">
+      <div className="relative h-[2px] bg-sentinel-border/30 mb-8 overflow-hidden">
         <div
           className="absolute inset-y-0 left-0 transition-all duration-700 ease-out"
           style={{
@@ -109,7 +109,7 @@ export function LiveTimeline() {
       {/* Live indicator */}
       <div className="flex items-center justify-center gap-2 mt-6">
         <span
-          className="w-1.5 h-1.5 rounded-full bg-warden-cyan"
+          className="w-1.5 h-1.5 rounded-full bg-sentinel-cyan"
           style={{ animation: "statusBlink 1.5s ease-in-out infinite" }}
         />
         <span className="font-mono text-[10px] text-gray-600 tracking-[0.2em]">LIVE SIMULATION</span>

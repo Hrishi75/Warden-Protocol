@@ -8,25 +8,25 @@ const statusConfig: Record<Status, { color: string; bg: string; label: string; b
   Active: {
     color: "#39FF14",
     bg: "rgba(57, 255, 20, 0.08)",
-    label: "OPERATIONAL",
+    label: "ACTIVE",
     borderColor: "rgba(57, 255, 20, 0.3)",
   },
   Arrested: {
     color: "#FF0033",
     bg: "rgba(255, 0, 51, 0.08)",
-    label: "CONTAINED",
+    label: "SUSPENDED",
     borderColor: "rgba(255, 0, 51, 0.3)",
   },
   Paroled: {
     color: "#FF9B26",
     bg: "rgba(255, 155, 38, 0.08)",
-    label: "RESTRICTED",
+    label: "ON PROBATION",
     borderColor: "rgba(255, 155, 38, 0.3)",
   },
   Terminated: {
     color: "#6B7280",
     bg: "rgba(107, 114, 128, 0.08)",
-    label: "NEUTRALIZED",
+    label: "TERMINATED",
     borderColor: "rgba(107, 114, 128, 0.3)",
   },
 };

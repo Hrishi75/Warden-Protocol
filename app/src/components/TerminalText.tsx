@@ -51,7 +51,7 @@ export function TerminalText({
     <span className={`font-mono ${className}`}>
       {displayed}
       {cursor && !done && (
-        <span className="inline-block w-2 h-4 bg-warden-cyan ml-0.5 animate-cursor-blink align-middle" />
+        <span className="inline-block w-2 h-4 bg-sentinel-cyan ml-0.5 animate-cursor-blink align-middle" />
       )}
     </span>
   );

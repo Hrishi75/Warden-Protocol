@@ -17,7 +17,7 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   return (
     <div className={`${centered ? "text-center" : ""} mb-12 ${className}`}>
-      <div className="font-mono text-xs text-warden-cyan/30 tracking-[0.3em] mb-3">
+      <div className="font-mono text-xs text-sentinel-cyan/30 tracking-[0.3em] mb-3">
         {"// "}{title.toUpperCase()}
       </div>
       <h2 className="text-2xl md:text-3xl font-bold font-mono text-white tracking-tight mb-4">
