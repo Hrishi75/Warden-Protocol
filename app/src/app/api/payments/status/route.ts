@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing payment_id" }, { status: 400 });
   }
 
-  const record = getPayment(paymentId);
+  const record = await getPayment(paymentId);
 
   if (!record) {
     return NextResponse.json({ error: "Payment not found" }, { status: 404 });

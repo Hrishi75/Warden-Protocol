@@ -1,14 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dodo } from "@/lib/dodo";
 import { setPayment } from "@/lib/payment-store";
+import { logAudit } from "@/lib/audit";
+import { verifyWalletSignature } from "@/lib/server-auth";
+import { checkoutSchema } from "@/lib/schemas";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { agentPublicKey, ownerPublicKey, stakeAmount, maxTransfer, maxDailyTxns } = body;
+    const parsed = checkoutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request", details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
 
-    if (!agentPublicKey || !ownerPublicKey) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const { agentPublicKey, ownerPublicKey, stakeAmount, maxTransfer, maxDailyTxns, auth } = parsed.data;
+
+    const verified = verifyWalletSignature(auth);
+    if (!verified.ok) {
+      return NextResponse.json({ error: verified.error }, { status: verified.status });
+    }
+    if (verified.walletAddress !== ownerPublicKey) {
+      return NextResponse.json({ error: "Signer must match ownerPublicKey" }, { status: 403 });
+    }
+    if (!auth.message.includes(agentPublicKey)) {
+      return NextResponse.json({ error: "Auth message must reference agentPublicKey" }, { status: 401 });
     }
 
     const productId = process.env.DODO_PRODUCT_ID;
@@ -47,8 +65,7 @@ export async function POST(req: NextRequest) {
       return_url: `${appUrl}/register?payment_status=success&payment_id={payment_id}`,
     });
 
-    // Store pending payment record
-    setPayment({
+    await setPayment({
       paymentId: payment.payment_id,
       status: "pending",
       agentPublicKey,
@@ -57,6 +74,11 @@ export async function POST(req: NextRequest) {
       maxTransfer: maxTransfer.toString(),
       maxDailyTxns: maxDailyTxns.toString(),
       createdAt: Date.now(),
+    });
+
+    await logAudit("payment.created", ownerPublicKey, "payment", payment.payment_id, {
+      agentPublicKey,
+      stakeAmount: stakeAmount.toString(),
     });
 
     return NextResponse.json({
