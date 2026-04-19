@@ -1,15 +1,10 @@
-import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import { Connection, Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
-import { getStatusString } from "./program";
-import idl from "./sentinel_protocol.json";
-
-/** Minimal wallet implementation for server-side read-only access. */
-const dummyKeypair = Keypair.generate();
-const DUMMY_WALLET = {
-  publicKey: dummyKeypair.publicKey,
-  signTransaction: <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => Promise.resolve(tx),
-  signAllTransactions: <T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]> => Promise.resolve(txs),
-};
+import { Connection } from "@solana/web3.js";
+import {
+  SentinelClient,
+  getStatusString,
+  getViolationTypeString,
+  getBailOutcomeString,
+} from "@sentinel-protocol/sdk";
 
 function getConnection(): Connection {
   const rpc =
@@ -17,14 +12,8 @@ function getConnection(): Connection {
   return new Connection(rpc, "confirmed");
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getReadOnlyProgram(): any {
-  const connection = getConnection();
-  const provider = new AnchorProvider(connection, DUMMY_WALLET, {
-    commitment: "confirmed",
-  });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return new Program(idl as any, provider);
+function getReadOnlyClient(): SentinelClient {
+  return SentinelClient.readOnly(getConnection());
 }
 
 export interface OnChainAgent {
@@ -56,28 +45,10 @@ export interface OnChainBailRequest {
   votesCount: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getViolationTypeString(vt: any): string {
-  if ("exceededTransferLimit" in vt) return "ExceededTransferLimit";
-  if ("unauthorizedProgram" in vt) return "UnauthorizedProgram";
-  if ("rateLimitBreached" in vt) return "RateLimitBreached";
-  if ("paroleViolation" in vt) return "ParoleViolation";
-  return "Other";
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getBailOutcomeString(outcome: any): string {
-  if ("pending" in outcome) return "Pending";
-  if ("released" in outcome) return "Released";
-  if ("paroled" in outcome) return "Paroled";
-  if ("terminated" in outcome) return "Terminated";
-  return "Pending";
-}
-
 export async function fetchAllAgentsOnChain(): Promise<OnChainAgent[]> {
-  const program = getReadOnlyProgram();
+  const client = getReadOnlyClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const accounts: any[] = await program.account.agentRecord.all();
+  const accounts: any[] = await client.fetchAllAgents();
 
   return accounts.map((acc) => ({
     publicKey: acc.publicKey.toBase58(),
@@ -103,7 +74,9 @@ export async function fetchAllAgentsOnChain(): Promise<OnChainAgent[]> {
 export async function fetchAllBailRequestsOnChain(): Promise<
   OnChainBailRequest[]
 > {
-  const program = getReadOnlyProgram();
+  const client = getReadOnlyClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const program = client.program as any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const accounts: any[] = await program.account.bailRequest.all();
 

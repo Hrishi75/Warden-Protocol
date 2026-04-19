@@ -11,15 +11,20 @@ export interface LinkedWallet {
 }
 
 export interface OperativeProfile {
-  callsign: string;
   walletAddress: string;
-  faction: Faction;
+  callsign: string | null;
+  faction: Faction | null;
   clearanceLevel: number;
   xp: number;
   registeredAt: number;
-  signature: string;
-  avatarStyle: string;
+  signature: string | null;
+  avatarStyle: string | null;
   linkedWallets: LinkedWallet[];
+}
+
+/** Whether the user has completed optional profile setup (callsign, faction, avatar) */
+export function isProfileComplete(profile: OperativeProfile): boolean {
+  return !!profile.callsign && !!profile.faction && !!profile.avatarStyle;
 }
 
 const STORAGE_PREFIX = "sentinel_operative_";
@@ -63,8 +68,8 @@ export async function signAndCreateProfile(
   };
 
   saveProfile(profile);
-  // Persist to server (fire-and-forget, localStorage is the primary during registration)
-  saveProfileToServer(profile).catch(() => {});
+  // Persist to server — await so profile is in DB before proceeding
+  await saveProfileToServer(profile).catch(() => {});
   return profile;
 }
 

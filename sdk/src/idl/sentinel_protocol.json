@@ -1,0 +1,1502 @@
+{
+  "address": "5DCbrjFHUdzLHLayUUdFJBnBPC8UV7eUc3wJA1rVRQTa",
+  "metadata": {
+    "name": "sentinel_protocol",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "On-chain accountability system for autonomous AI agents"
+  },
+  "instructions": [
+    {
+      "name": "arrest_agent",
+      "discriminator": [
+        68,
+        221,
+        121,
+        45,
+        24,
+        159,
+        93,
+        143
+      ],
+      "accounts": [
+        {
+          "name": "arrester",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cell",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sentinel_dao",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "violation_type",
+          "type": {
+            "defined": {
+              "name": "ViolationType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "cast_vote",
+      "discriminator": [
+        20,
+        212,
+        15,
+        189,
+        69,
+        180,
+        69,
+        151
+      ],
+      "accounts": [
+        {
+          "name": "voter",
+          "signer": true
+        },
+        {
+          "name": "bail_request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  105,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cell"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cell",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "agent_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sentinel_dao",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "decision",
+          "type": {
+            "defined": {
+              "name": "BailOutcome"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "check_probation",
+      "discriminator": [
+        188,
+        29,
+        82,
+        180,
+        162,
+        71,
+        81,
+        213
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "freeze_agent_token",
+      "discriminator": [
+        5,
+        151,
+        38,
+        2,
+        249,
+        128,
+        123,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cell",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sentinel_dao",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_dao",
+      "discriminator": [
+        164,
+        105,
+        97,
+        240,
+        173,
+        0,
+        112,
+        0
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "sentinel_dao",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "vote_threshold",
+          "type": "u8"
+        },
+        {
+          "name": "review_window_seconds",
+          "type": "i64"
+        },
+        {
+          "name": "min_bail_lamports",
+          "type": "u64"
+        },
+        {
+          "name": "slash_percentage",
+          "type": "u8"
+        },
+        {
+          "name": "initial_members",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "DaoMember"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "post_bail",
+      "discriminator": [
+        159,
+        249,
+        212,
+        27,
+        246,
+        42,
+        173,
+        203
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cell",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bail_request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  105,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cell"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bail_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  105,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bail_request"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sentinel_dao",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "bail_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "register_agent",
+      "discriminator": [
+        135,
+        157,
+        66,
+        195,
+        2,
+        113,
+        175,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent_identity",
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_identity"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "permissions",
+          "type": {
+            "defined": {
+              "name": "PermissionScope"
+            }
+          }
+        },
+        {
+          "name": "stake_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "release_agent",
+      "discriminator": [
+        19,
+        54,
+        131,
+        9,
+        144,
+        226,
+        216,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cell",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  108,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bail_request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  105,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cell"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bail_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  105,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bail_request"
+              }
+            ]
+          }
+        },
+        {
+          "name": "stake_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true
+        },
+        {
+          "name": "sentinel_dao",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "report_violation",
+      "discriminator": [
+        9,
+        194,
+        167,
+        190,
+        60,
+        111,
+        100,
+        85
+      ],
+      "accounts": [
+        {
+          "name": "reporter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_record.agent_identity",
+                "account": "AgentRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sentinel_dao",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  114,
+                  100,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  111
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "violation_type",
+          "type": {
+            "defined": {
+              "name": "ViolationType"
+            }
+          }
+        },
+        {
+          "name": "evidence_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "description",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AgentRecord",
+      "discriminator": [
+        4,
+        201,
+        129,
+        70,
+        197,
+        134,
+        47,
+        169
+      ]
+    },
+    {
+      "name": "BailRequest",
+      "discriminator": [
+        13,
+        240,
+        254,
+        240,
+        128,
+        223,
+        136,
+        27
+      ]
+    },
+    {
+      "name": "Cell",
+      "discriminator": [
+        105,
+        32,
+        243,
+        35,
+        201,
+        39,
+        164,
+        138
+      ]
+    },
+    {
+      "name": "SentinelDao",
+      "discriminator": [
+        79,
+        71,
+        14,
+        64,
+        113,
+        84,
+        12,
+        214
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "AgentNotArrestable",
+      "msg": "Agent is not in a state that allows arrest"
+    },
+    {
+      "code": 6001,
+      "name": "AgentNotArrested",
+      "msg": "Agent is not currently arrested"
+    },
+    {
+      "code": 6002,
+      "name": "AgentNotOnParole",
+      "msg": "Agent is not on parole"
+    },
+    {
+      "code": 6003,
+      "name": "AgentTerminated",
+      "msg": "Agent is already terminated"
+    },
+    {
+      "code": 6004,
+      "name": "NotAgentOwner",
+      "msg": "Only the agent owner can perform this action"
+    },
+    {
+      "code": 6005,
+      "name": "NotDaoMember",
+      "msg": "Caller is not a DAO member"
+    },
+    {
+      "code": 6006,
+      "name": "BailAlreadyPosted",
+      "msg": "Bail has already been posted for this arrest"
+    },
+    {
+      "code": 6007,
+      "name": "BailBelowMinimum",
+      "msg": "Bail amount is below the minimum required"
+    },
+    {
+      "code": 6008,
+      "name": "VotingPeriodEnded",
+      "msg": "Voting period has ended"
+    },
+    {
+      "code": 6009,
+      "name": "VotingNotConcluded",
+      "msg": "Voting is still in progress"
+    },
+    {
+      "code": 6010,
+      "name": "AlreadyVoted",
+      "msg": "Member has already voted on this bail request"
+    },
+    {
+      "code": 6011,
+      "name": "VotingClosed",
+      "msg": "Voting has already been resolved"
+    },
+    {
+      "code": 6012,
+      "name": "MaxViolationsReached",
+      "msg": "Maximum violations reached"
+    },
+    {
+      "code": 6013,
+      "name": "ProbationNotEnded",
+      "msg": "Probation period has not ended yet"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidStakeAmount",
+      "msg": "Stake amount must be greater than zero"
+    },
+    {
+      "code": 6015,
+      "name": "ReasonTooLong",
+      "msg": "Reason string too long"
+    },
+    {
+      "code": 6016,
+      "name": "DescriptionTooLong",
+      "msg": "Description string too long"
+    }
+  ],
+  "types": [
+    {
+      "name": "AgentRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent_identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "stake_amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "AgentStatus"
+              }
+            }
+          },
+          {
+            "name": "permissions",
+            "type": {
+              "defined": {
+                "name": "PermissionScope"
+              }
+            }
+          },
+          {
+            "name": "violations",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Violation"
+                }
+              }
+            }
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          },
+          {
+            "name": "parole_terms",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "ParoleTerms"
+                }
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Arrested"
+          },
+          {
+            "name": "Paroled"
+          },
+          {
+            "name": "Terminated"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BailOutcome",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Released"
+          },
+          {
+            "name": "Paroled"
+          },
+          {
+            "name": "Terminated"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BailRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "cell",
+            "type": "pubkey"
+          },
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "bail_amount",
+            "type": "u64"
+          },
+          {
+            "name": "posted_at",
+            "type": "i64"
+          },
+          {
+            "name": "review_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "votes",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Vote"
+                }
+              }
+            }
+          },
+          {
+            "name": "outcome",
+            "type": {
+              "defined": {
+                "name": "BailOutcome"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cell",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "arrester",
+            "type": "pubkey"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "arrested_at",
+            "type": "i64"
+          },
+          {
+            "name": "frozen_token_accounts",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "bail_posted",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DaoMember",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "stake",
+            "type": "u64"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ParoleTerms",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "reduced_max_transfer",
+            "type": "u64"
+          },
+          {
+            "name": "reduced_daily_txns",
+            "type": "u16"
+          },
+          {
+            "name": "must_report",
+            "type": "bool"
+          },
+          {
+            "name": "parole_start",
+            "type": "i64"
+          },
+          {
+            "name": "probation_end",
+            "type": "i64"
+          },
+          {
+            "name": "strikes_remaining",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PermissionScope",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max_transfer_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "allowed_programs",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "max_daily_transactions",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Violation",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "violation_type",
+            "type": {
+              "defined": {
+                "name": "ViolationType"
+              }
+            }
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "description",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ViolationType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "ExceededTransferLimit"
+          },
+          {
+            "name": "UnauthorizedProgram"
+          },
+          {
+            "name": "RateLimitBreached"
+          },
+          {
+            "name": "ParoleViolation"
+          },
+          {
+            "name": "Other"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vote",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "decision",
+            "type": {
+              "defined": {
+                "name": "BailOutcome"
+              }
+            }
+          },
+          {
+            "name": "weight",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SentinelDao",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "members",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "DaoMember"
+                }
+              }
+            }
+          },
+          {
+            "name": "vote_threshold",
+            "type": "u8"
+          },
+          {
+            "name": "review_window_seconds",
+            "type": "i64"
+          },
+          {
+            "name": "min_bail_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "slash_percentage",
+            "type": "u8"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
