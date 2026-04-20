@@ -3,10 +3,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProgram } from "@/lib/useProgram";
+import { useAuth } from "@/providers/AuthProvider";
+import { isProfileComplete } from "@/lib/auth";
 import { fetchDao } from "@/lib/program";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { AuthGuard } from "@/components/AuthGuard";
 import { HUDFrame } from "@/components/HUDFrame";
+import Link from "next/link";
 
 const stagger = {
   hidden: {},
@@ -17,6 +20,38 @@ const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
+
+function ProfileSetupBanner() {
+  const { operative } = useAuth();
+
+  if (!operative || isProfileComplete(operative)) return null;
+
+  return (
+    <motion.div variants={fadeUp}>
+      <HUDFrame color="orange" className="mb-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-mono text-sm text-sentinel-orange tracking-wider mb-1">
+              GOVERNANCE PROFILE RECOMMENDED
+            </p>
+            <p className="font-mono text-xs text-gray-500">
+              Wallet-only users can inspect governance. Complete your profile to join votes, publish reviewer identity, and build reputation.
+            </p>
+          </div>
+          <Link href="/auth?next=/dao">
+            <motion.span
+              className="btn-hud !border-sentinel-orange/30 !text-sentinel-orange hover:!bg-sentinel-orange/10 !py-2 !px-4 text-xs inline-block"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              COMPLETE PROFILE
+            </motion.span>
+          </Link>
+        </div>
+      </HUDFrame>
+    </motion.div>
+  );
+}
 
 function DaoContent() {
   const { program } = useProgram();
@@ -66,14 +101,14 @@ function DaoContent() {
       {/* Header */}
       <motion.div className="flex items-start justify-between mb-8 gap-4" variants={fadeUp}>
         <div>
-          <div className="font-mono text-xs text-warden-orange/50 tracking-[0.3em] mb-2">
+          <div className="font-mono text-xs text-sentinel-orange/50 tracking-[0.3em] mb-2">
             GOVERNANCE TERMINAL
           </div>
           <h1 className="text-3xl font-bold font-mono text-white tracking-tight">
             WAR COUNCIL
           </h1>
           <p className="text-gray-600 font-mono text-sm mt-1 tracking-wide">
-            The human jury governing agent accountability
+            Governance and reviewer credibility for agent accountability
           </p>
         </div>
         {program && (
@@ -88,9 +123,12 @@ function DaoContent() {
         )}
       </motion.div>
 
+      {/* Profile setup banner for governance participation */}
+      <ProfileSetupBanner />
+
       {loading ? (
         <motion.div className="text-center py-20" variants={fadeUp}>
-          <div className="w-8 h-8 border-2 border-warden-orange border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-8 h-8 border-2 border-sentinel-orange border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600 font-mono text-sm tracking-wider">
             CONNECTING TO WAR COUNCIL...
           </p>
@@ -98,7 +136,7 @@ function DaoContent() {
       ) : error ? (
         <motion.div variants={fadeUp}>
           <HUDFrame color="orange" className="text-center py-12">
-            <p className="text-warden-orange font-mono text-sm mb-2">{error}</p>
+            <p className="text-sentinel-orange font-mono text-sm mb-2">{error}</p>
             <p className="text-gray-600 text-xs font-mono">
               Connect wallet and verify DAO initialization.
             </p>
@@ -107,14 +145,14 @@ function DaoContent() {
       ) : (
         <>
           {/* Tabs */}
-          <motion.div className="flex gap-0 mb-6 border border-warden-border/50 w-fit" variants={fadeUp}>
+          <motion.div className="flex gap-0 mb-6 border border-sentinel-border/50 w-fit" variants={fadeUp}>
             {(["members", "votes", "config"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`relative px-5 py-2.5 font-mono text-xs tracking-wider transition-all duration-200 ${
                   activeTab === tab
-                    ? "bg-warden-cyan/10 text-warden-cyan"
+                    ? "bg-sentinel-cyan/10 text-sentinel-cyan"
                     : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
                 }`}
               >
@@ -122,7 +160,7 @@ function DaoContent() {
                 {activeTab === tab && (
                   <motion.div
                     layoutId="daoTabIndicator"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-warden-cyan"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-sentinel-cyan"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                   />
                 )}
@@ -142,14 +180,14 @@ function DaoContent() {
                 <HUDFrame color="cyan" label="ROSTER" className="!p-0 overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-warden-cyan/20">
-                        <th className="text-left px-6 py-3 font-mono text-[10px] text-warden-cyan tracking-[0.2em]">
+                      <tr className="border-b border-sentinel-cyan/20">
+                        <th className="text-left px-6 py-3 font-mono text-[10px] text-sentinel-cyan tracking-[0.2em]">
                           WALLET
                         </th>
-                        <th className="text-left px-6 py-3 font-mono text-[10px] text-warden-cyan tracking-[0.2em]">
+                        <th className="text-left px-6 py-3 font-mono text-[10px] text-sentinel-cyan tracking-[0.2em]">
                           STAKE
                         </th>
-                        <th className="text-left px-6 py-3 font-mono text-[10px] text-warden-cyan tracking-[0.2em]">
+                        <th className="text-left px-6 py-3 font-mono text-[10px] text-sentinel-cyan tracking-[0.2em]">
                           STATUS
                         </th>
                       </tr>
@@ -172,12 +210,12 @@ function DaoContent() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: i * 0.05 }}
-                              className="border-b border-warden-border/20 hover:bg-warden-cyan/5 transition"
+                              className="border-b border-sentinel-border/20 hover:bg-sentinel-cyan/5 transition"
                             >
                               <td className="px-6 py-4 font-mono text-sm text-white">
                                 {walletStr.slice(0, 4)}...{walletStr.slice(-4)}
                               </td>
-                              <td className="px-6 py-4 text-sm text-warden-cyan font-mono">
+                              <td className="px-6 py-4 text-sm text-sentinel-cyan font-mono">
                                 {(stakeVal / LAMPORTS_PER_SOL).toFixed(2)} SOL
                               </td>
                               <td className="px-6 py-4">
@@ -240,13 +278,13 @@ function DaoContent() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.08 }}
                       className={`flex justify-between px-6 py-4 ${
-                        i < arr.length - 1 ? "border-b border-warden-border/20" : ""
+                        i < arr.length - 1 ? "border-b border-sentinel-border/20" : ""
                       }`}
                     >
                       <span className="text-gray-500 font-mono text-sm tracking-wider">
                         {item.label}
                       </span>
-                      <span className="text-warden-orange font-mono text-sm font-bold">
+                      <span className="text-sentinel-orange font-mono text-sm font-bold">
                         {item.value}
                       </span>
                     </motion.div>

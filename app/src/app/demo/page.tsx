@@ -125,7 +125,7 @@ export default function DemoPage() {
     >
       {/* Header */}
       <motion.div className="mb-8" variants={fadeUp}>
-        <div className="font-mono text-xs text-warden-purple/50 tracking-[0.3em] mb-2">
+        <div className="font-mono text-xs text-sentinel-purple/50 tracking-[0.3em] mb-2">
           SIMULATION ENGINE
         </div>
         <h1 className="text-3xl font-bold font-mono text-white tracking-tight">
@@ -146,7 +146,7 @@ export default function DemoPage() {
         >
           {running ? (
             <span className="flex items-center justify-center gap-3">
-              <span className="w-4 h-4 border-2 border-warden-cyan border-t-transparent rounded-full animate-spin" />
+              <span className="w-4 h-4 border-2 border-sentinel-cyan border-t-transparent rounded-full animate-spin" />
               SIMULATION IN PROGRESS...
             </span>
           ) : (
@@ -164,10 +164,10 @@ export default function DemoPage() {
               layout
               className={`border transition-all duration-300 p-4 ${
                 step.status === "running"
-                  ? "border-warden-cyan/50 bg-warden-cyan/5 shadow-neon-cyan"
+                  ? "border-sentinel-cyan/50 bg-sentinel-cyan/5 shadow-neon-cyan"
                   : step.status === "completed"
-                  ? "border-warden-cyan/20 bg-warden-surface/30"
-                  : "border-warden-border/30 bg-warden-surface/10"
+                  ? "border-sentinel-cyan/20 bg-sentinel-surface/30"
+                  : "border-sentinel-border/30 bg-sentinel-surface/10"
               }`}
             >
               <div className="flex items-center gap-4">
@@ -175,10 +175,10 @@ export default function DemoPage() {
                 <motion.div
                   className={`w-8 h-8 flex items-center justify-center text-xs font-mono font-bold shrink-0 transition-all duration-300 ${
                     step.status === "completed"
-                      ? "bg-warden-cyan text-warden-navy"
+                      ? "bg-sentinel-cyan text-sentinel-navy"
                       : step.status === "running"
-                      ? "border border-warden-cyan text-warden-cyan animate-neon-pulse"
-                      : "border border-warden-border/50 text-gray-600"
+                      ? "border border-sentinel-cyan text-sentinel-cyan animate-neon-pulse"
+                      : "border border-sentinel-border/50 text-gray-600"
                   }`}
                   animate={
                     step.status === "completed"
@@ -207,7 +207,7 @@ export default function DemoPage() {
                 {/* Status indicator */}
                 {step.status === "running" && (
                   <motion.div
-                    className="w-2 h-2 rounded-full bg-warden-cyan"
+                    className="w-2 h-2 rounded-full bg-sentinel-cyan"
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   />

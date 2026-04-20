@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-import { useRouter } from "next/navigation";
-import { WalletButton } from "@/components/WalletButton";
-import { FACTION_INFO, AVATAR_STYLES, getAvatarUrl, Faction } from "@/lib/auth";
+import React, { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/providers/AuthProvider";
+import { WalletButton } from "@/components/WalletButton";
+import { FACTION_INFO, AVATAR_STYLES, getAvatarUrl, Faction, isProfileComplete } from "@/lib/auth";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -17,9 +17,10 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.08 } },
 };
 
-export default function AuthPage() {
-  const { isAuthenticated, walletConnected, signIn, isLoading } = useAuth();
+function AuthPageContent() {
+  const { operative, walletConnected, signIn, updateProfile, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [callsign, setCallsign] = useState("");
   const [faction, setFaction] = useState<Faction>("sentinel");
@@ -28,21 +29,23 @@ export default function AuthPage() {
   const [signing, setSigning] = useState(false);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [isAuthenticated, isLoading, router]);
+  const nextPath = searchParams.get("next") || "/dashboard";
 
-  // Terminal boot sequence
+  useEffect(() => {
+    if (operative) {
+      if (operative.callsign) setCallsign(operative.callsign);
+      if (operative.faction) setFaction(operative.faction);
+      if (operative.avatarStyle) setAvatarStyle(operative.avatarStyle);
+    }
+  }, [operative]);
+
   useEffect(() => {
     const lines = [
       "> SENTINEL PROTOCOL v1.0.0",
-      "> Initializing secure connection...",
-      "> Neural link established",
-      "> OPERATIVE REGISTRATION TERMINAL",
-      "> Awaiting identity authorization...",
+      "> Wallet account already active",
+      "> Governance channel available",
+      "> OPTIONAL PROFILE TERMINAL",
+      "> Add public identity when trust features matter",
     ];
     let i = 0;
     const interval = setInterval(() => {
@@ -56,7 +59,7 @@ export default function AuthPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSignIn = async () => {
+  const handleSave = async () => {
     if (!callsign.trim()) {
       setError("Callsign required");
       return;
@@ -74,10 +77,14 @@ export default function AuthPage() {
     setSigning(true);
 
     try {
-      await signIn(callsign, faction, avatarStyle);
-      router.push("/dashboard");
+      if (operative?.signature) {
+        updateProfile({ callsign, faction, avatarStyle });
+      } else {
+        await signIn(callsign, faction, avatarStyle);
+      }
+      router.push(nextPath);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Authorization failed");
+      setError(err instanceof Error ? err.message : "Setup failed");
       setSigning(false);
     }
   };
@@ -85,20 +92,16 @@ export default function AuthPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-warden-cyan border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-sentinel-cyan border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
+  const alreadyComplete = operative && isProfileComplete(operative);
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 pt-20 pb-8">
-      <motion.div
-        className="w-full max-w-2xl"
-        initial="hidden"
-        animate="visible"
-        variants={stagger}
-      >
-        {/* Terminal Header */}
+      <motion.div className="w-full max-w-2xl" initial="hidden" animate="visible" variants={stagger}>
         <div className="mb-6 font-mono text-xs space-y-1">
           <AnimatePresence>
             {terminalLines.map((line, i) => (
@@ -107,11 +110,7 @@ export default function AuthPage() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={
-                  i === terminalLines.length - 1
-                    ? "text-warden-cyan"
-                    : "text-gray-600"
-                }
+                className={i === terminalLines.length - 1 ? "text-sentinel-cyan" : "text-gray-600"}
               >
                 {line}
               </motion.div>
@@ -119,36 +118,34 @@ export default function AuthPage() {
           </AnimatePresence>
         </div>
 
-        {/* Main Auth Card */}
         <motion.div
           className="hud-frame scanline-overlay"
           variants={fadeUp}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Title Bar */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <div className="text-warden-cyan font-mono text-xs tracking-[0.3em] mb-1">
+              <div className="text-sentinel-cyan font-mono text-xs tracking-[0.3em] mb-1">
                 SENTINEL PROTOCOL
               </div>
               <h1 className="text-2xl font-bold text-white">
-                Operative Registration
+                {alreadyComplete ? "Edit Governance Profile" : "Optional Governance Profile"}
               </h1>
+              <p className="text-gray-500 font-mono text-[10px] mt-1 leading-relaxed">
+                {alreadyComplete
+                  ? "Update your callsign, faction, or avatar"
+                  : "Customize identity for governance, reviewer credibility, and public trust"}
+              </p>
             </div>
             <div className="text-right">
-              <div
-                className={`text-xs font-mono tracking-wider ${
-                  walletConnected ? "text-hud-green" : "text-alert-red"
-                }`}
-              >
-                {walletConnected ? "● UPLINK ACTIVE" : "○ NO UPLINK"}
+              <div className={`text-xs font-mono tracking-wider ${walletConnected ? "text-hud-green" : "text-alert-red"}`}>
+                {walletConnected ? "WALLET CONNECTED" : "NO WALLET"}
               </div>
             </div>
           </div>
 
           <AnimatePresence mode="wait">
             {!walletConnected ? (
-              /* Wallet Connection Required */
               <motion.div
                 key="connect"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -157,16 +154,14 @@ export default function AuthPage() {
                 transition={{ duration: 0.3 }}
                 className="text-center py-12"
               >
-                <div className="text-6xl mb-6 opacity-30">⬡</div>
                 <p className="text-gray-400 mb-6 font-mono text-sm">
-                  CONNECT WALLET TO ESTABLISH NEURAL LINK
+                  Connect wallet to create your account first
                 </p>
                 <div className="flex justify-center">
                   <WalletButton />
                 </div>
               </motion.div>
             ) : (
-              /* Registration Form */
               <motion.div
                 key="form"
                 initial="hidden"
@@ -174,27 +169,31 @@ export default function AuthPage() {
                 variants={stagger}
                 className="space-y-8"
               >
-                {/* Callsign Input */}
                 <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-                  <label className="block font-mono text-xs text-gray-500 tracking-widest mb-2 uppercase">
-                    Operative Callsign
+                  <label className="block font-mono text-xs text-gray-500 tracking-widest mb-1 uppercase">
+                    Callsign
                   </label>
+                  <p className="text-gray-600 font-mono text-[10px] mb-2 leading-relaxed">
+                    Public display name used in governance reviews and social trust signals.
+                  </p>
                   <input
                     type="text"
                     value={callsign}
                     onChange={(e) => setCallsign(e.target.value)}
-                    placeholder="Enter callsign..."
+                    placeholder="Enter your name..."
                     className="cyber-input text-lg"
                     maxLength={20}
                     autoFocus
                   />
                 </motion.div>
 
-                {/* Faction Selection */}
                 <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-                  <label className="block font-mono text-xs text-gray-500 tracking-widest mb-3 uppercase">
-                    Select Faction
+                  <label className="block font-mono text-xs text-gray-500 tracking-widest mb-1 uppercase">
+                    Select Your Role
                   </label>
+                  <p className="text-gray-600 font-mono text-[10px] mb-3 leading-relaxed">
+                    Factions only matter when you want governance credibility, public identity, or reviewer status.
+                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {(Object.keys(FACTION_INFO) as Faction[]).map((f) => {
                       const info = FACTION_INFO[f];
@@ -208,26 +207,22 @@ export default function AuthPage() {
                           className={`p-4 text-left transition-all duration-200 border ${
                             isSelected
                               ? "border-opacity-60 bg-opacity-10"
-                              : "border-warden-border hover:border-opacity-40"
+                              : "border-sentinel-border hover:border-opacity-40"
                           }`}
                           style={{
                             borderColor: isSelected ? info.color : undefined,
-                            backgroundColor: isSelected
-                              ? `${info.color}10`
-                              : "rgba(11, 13, 26, 0.6)",
-                            boxShadow: isSelected
-                              ? `0 0 20px ${info.color}15, inset 0 0 20px ${info.color}05`
-                              : undefined,
+                            backgroundColor: isSelected ? `${info.color}10` : "rgba(11, 13, 26, 0.6)",
+                            boxShadow: isSelected ? `0 0 20px ${info.color}15, inset 0 0 20px ${info.color}05` : undefined,
                           }}
                         >
-                          <div
-                            className="font-mono text-sm font-bold tracking-wider mb-1"
-                            style={{ color: info.color }}
-                          >
+                          <div className="font-mono text-sm font-bold tracking-wider mb-1" style={{ color: info.color }}>
                             {info.name}
                           </div>
-                          <div className="text-gray-500 text-xs leading-relaxed">
+                          <div className="text-gray-500 text-xs leading-relaxed mb-1">
                             {info.description}
+                          </div>
+                          <div className="text-gray-600 text-[10px] leading-relaxed">
+                            {info.plainDescription}
                           </div>
                         </motion.button>
                       );
@@ -235,14 +230,12 @@ export default function AuthPage() {
                   </div>
                 </motion.div>
 
-                {/* Avatar Style Selection */}
                 <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
                   <label className="block font-mono text-xs text-gray-500 tracking-widest mb-3 uppercase">
-                    Operative Avatar
+                    Choose Your Avatar
                   </label>
 
-                  {/* Preview */}
-                  <div className="flex items-center gap-4 mb-4 p-3 border border-warden-cyan/20 bg-warden-cyan/5">
+                  <div className="flex items-center gap-4 mb-4 p-3 border border-sentinel-cyan/20 bg-sentinel-cyan/5">
                     <div
                       className="w-16 h-16 shrink-0 border overflow-hidden"
                       style={{
@@ -258,8 +251,8 @@ export default function AuthPage() {
                       />
                     </div>
                     <div>
-                      <div className="font-mono text-xs text-warden-cyan tracking-wider">
-                        {AVATAR_STYLES.find(s => s.id === avatarStyle)?.label || "MECH"}
+                      <div className="font-mono text-xs text-sentinel-cyan tracking-wider">
+                        {AVATAR_STYLES.find((s) => s.id === avatarStyle)?.label || "MECH"}
                       </div>
                       <div className="font-mono text-[10px] text-gray-600 mt-0.5">
                         {callsign ? `SEED: ${callsign}` : "Enter callsign to preview"}
@@ -267,7 +260,6 @@ export default function AuthPage() {
                     </div>
                   </div>
 
-                  {/* Style Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {AVATAR_STYLES.map((style) => {
                       const isSelected = avatarStyle === style.id;
@@ -287,7 +279,7 @@ export default function AuthPage() {
                               className="w-full h-full"
                             />
                           </div>
-                          <div className={`font-mono text-[10px] tracking-wider ${isSelected ? "text-warden-cyan" : "text-gray-500"}`}>
+                          <div className={`font-mono text-[10px] tracking-wider ${isSelected ? "text-sentinel-cyan" : "text-gray-500"}`}>
                             {style.label}
                           </div>
                           <div className="font-mono text-[9px] text-gray-600 mt-0.5">
@@ -299,7 +291,6 @@ export default function AuthPage() {
                   </div>
                 </motion.div>
 
-                {/* Error Display */}
                 <AnimatePresence>
                   {error && (
                     <motion.div
@@ -308,15 +299,14 @@ export default function AuthPage() {
                       exit={{ opacity: 0, height: 0 }}
                       className="font-mono text-sm text-alert-red bg-alert-red/10 border border-alert-red/30 p-3"
                     >
-                      ⚠ {error}
+                      {error}
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Submit */}
-                <motion.div className="pt-2" variants={fadeUp} transition={{ duration: 0.5 }}>
+                <motion.div className="pt-2 space-y-3" variants={fadeUp} transition={{ duration: 0.5 }}>
                   <motion.button
-                    onClick={handleSignIn}
+                    onClick={handleSave}
                     disabled={signing || !callsign.trim()}
                     className="btn-hud w-full py-4 text-base"
                     whileHover={{ scale: 1.01 }}
@@ -324,15 +314,29 @@ export default function AuthPage() {
                   >
                     {signing ? (
                       <span className="flex items-center justify-center gap-3">
-                        <span className="w-4 h-4 border-2 border-warden-cyan border-t-transparent rounded-full animate-spin" />
-                        AUTHORIZING...
+                        <span className="w-4 h-4 border-2 border-sentinel-cyan border-t-transparent rounded-full animate-spin" />
+                        SAVING...
                       </span>
+                    ) : alreadyComplete ? (
+                      "UPDATE PROFILE"
                     ) : (
-                      "AUTHORIZE IDENTITY"
+                      "SAVE GOVERNANCE PROFILE"
                     )}
                   </motion.button>
-                  <p className="text-center text-gray-600 text-xs font-mono mt-3 tracking-wider">
-                    WALLET SIGNATURE REQUIRED FOR VERIFICATION
+                  {!alreadyComplete && (
+                    <motion.button
+                      onClick={() => router.push("/dashboard")}
+                      className="w-full py-3 font-mono text-xs tracking-wider text-gray-500 hover:text-gray-400 border border-gray-800 hover:border-gray-700 transition-all"
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                    >
+                      SKIP AND USE DASHBOARD
+                    </motion.button>
+                  )}
+                  <p className="text-center text-gray-600 text-xs font-mono leading-relaxed">
+                    {operative?.signature
+                      ? "Profile updates are saved instantly."
+                      : "Your wallet signs a message only if you choose to save this profile. No funds are spent."}
                   </p>
                 </motion.div>
               </motion.div>
@@ -340,7 +344,6 @@ export default function AuthPage() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Footer Info */}
         <motion.div className="mt-6 text-center" variants={fadeUp}>
           <div className="hud-divider mb-4" />
           <p className="text-gray-600 text-xs font-mono tracking-wider">
@@ -349,5 +352,19 @@ export default function AuthPage() {
         </motion.div>
       </motion.div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-sentinel-cyan border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <AuthPageContent />
+    </Suspense>
   );
 }
