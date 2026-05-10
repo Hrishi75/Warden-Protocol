@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { StatusBadge, getStatusFromAccount } from "./StatusBadge";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
@@ -10,6 +11,7 @@ interface AgentCardProps {
   agent: any;
   insuranceTier?: "Basic" | "Standard" | "Premium" | null;
   onClick?: () => void;
+  href?: string;
 }
 
 const statusBorderColors: Record<string, string> = {
@@ -25,12 +27,11 @@ const tierColors: Record<string, string> = {
   Premium: "#6C5CE7",
 };
 
-export function AgentCard({ agent, insuranceTier, onClick }: AgentCardProps) {
+export function AgentCard({ agent, insuranceTier, onClick, href }: AgentCardProps) {
   const status = getStatusFromAccount(agent.status);
   const identity = agent.agentIdentity.toBase58();
   const borderColor = statusBorderColors[status] || "rgba(0, 229, 204, 0.2)";
-
-  return (
+  const content = (
     <motion.div
       onClick={onClick}
       className="relative p-5 transition-colors duration-300 cursor-pointer group"
@@ -128,6 +129,16 @@ export function AgentCard({ agent, insuranceTier, onClick }: AgentCardProps) {
           </div>
         )}
       </div>
+
+      <div className="mt-4 pt-4 border-t border-sentinel-border/20 font-mono text-[10px] tracking-[0.2em] text-sentinel-cyan group-hover:text-white transition-colors">
+        VIEW SAFETY PASSPORT
+      </div>
     </motion.div>
   );
+
+  if (href) {
+    return <Link href={href}>{content}</Link>;
+  }
+
+  return content;
 }
