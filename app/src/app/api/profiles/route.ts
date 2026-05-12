@@ -4,17 +4,12 @@ import { Faction } from "@prisma/client";
 import { logAudit } from "@/lib/audit";
 import { verifyWalletSignature } from "@/lib/server-auth";
 import { profileSaveSchema, signedAuthSchema } from "@/lib/schemas";
+import { serializeProfile } from "@/lib/profile-serializer";
 
 const factionMap: Record<string, Faction> = {
   sentinel: "SENTINEL",
   vanguard: "VANGUARD",
   phantom: "PHANTOM",
-};
-
-const reverseFactionMap: Record<Faction, string> = {
-  SENTINEL: "sentinel",
-  VANGUARD: "vanguard",
-  PHANTOM: "phantom",
 };
 
 export async function GET(req: NextRequest) {
@@ -33,21 +28,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 
-  return NextResponse.json({
-    callsign: profile.callsign,
-    walletAddress: profile.walletAddress,
-    faction: profile.faction ? reverseFactionMap[profile.faction] : null,
-    clearanceLevel: profile.clearanceLevel,
-    xp: profile.xp,
-    registeredAt: profile.registeredAt.getTime(),
-    signature: profile.signature,
-    avatarStyle: profile.avatarStyle,
-    linkedWallets: profile.linkedWallets.map((w) => ({
-      address: w.address,
-      linkedAt: w.linkedAt.getTime(),
-      label: w.label,
-    })),
-  });
+  return NextResponse.json(serializeProfile(profile));
 }
 
 export async function POST(req: NextRequest) {
@@ -102,21 +83,7 @@ export async function POST(req: NextRequest) {
       faction: faction ?? "",
     });
 
-    return NextResponse.json({
-      callsign: profile.callsign,
-      walletAddress: profile.walletAddress,
-      faction: profile.faction ? reverseFactionMap[profile.faction] : null,
-      clearanceLevel: profile.clearanceLevel,
-      xp: profile.xp,
-      registeredAt: profile.registeredAt.getTime(),
-      signature: profile.signature,
-      avatarStyle: profile.avatarStyle,
-      linkedWallets: profile.linkedWallets.map((w) => ({
-        address: w.address,
-        linkedAt: w.linkedAt.getTime(),
-        label: w.label,
-      })),
-    });
+    return NextResponse.json(serializeProfile(profile));
   } catch (error) {
     console.error("Profile save error:", error);
     return NextResponse.json(

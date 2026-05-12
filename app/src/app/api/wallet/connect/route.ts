@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
 import { verifyWalletSignature } from "@/lib/server-auth";
 import { walletConnectSchema } from "@/lib/schemas";
+import { serializeProfile } from "@/lib/profile-serializer";
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,21 +66,7 @@ export async function POST(req: NextRequest) {
         lastConnectedAt: connection.lastConnectedAt.toISOString(),
         connectionCount: connection.connectionCount,
       },
-      profile: {
-        callsign: profile.callsign ?? null,
-        walletAddress: profile.walletAddress,
-        faction: profile.faction?.toLowerCase() ?? null,
-        clearanceLevel: profile.clearanceLevel,
-        xp: profile.xp,
-        registeredAt: profile.registeredAt.getTime(),
-        signature: profile.signature ?? null,
-        avatarStyle: profile.avatarStyle ?? null,
-        linkedWallets: profile.linkedWallets.map((w) => ({
-          address: w.address,
-          linkedAt: w.linkedAt.getTime(),
-          label: w.label,
-        })),
-      },
+      profile: serializeProfile(profile),
       agents: agents.map((a) => ({
         id: a.id,
         agentIdentity: a.agentIdentity,
